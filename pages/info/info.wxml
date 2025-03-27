@@ -1,0 +1,22 @@
+<!-- WXML -->
+<view class="complex-container">
+  <!-- 文本内容 -->
+  <text class="content-text">{{user_name}}</text>
+
+  <!-- 右上角头像 -->
+  <image style="position: absolute; left: 562rpx; top: 29rpx" 
+    src="{{avatarUrl}}" 
+    class="corner-avatar"
+    mode="aspectFill"
+    bind:tap="handleAvatarTap"
+  />
+
+  <!-- 左下角按钮 -->
+  <button 
+    class="corner-button" 
+    bind:tap="goToProfile"
+    hover-class="button-hover"
+  >
+  <text>编辑个人资料</text>
+  </button>
+</view>

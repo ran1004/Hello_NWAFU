@@ -1,0 +1,101 @@
+/* WXSS */
+.complex-container {
+    position: relative;
+    /* 关键定位属性 */
+    padding: 30rpx;
+    background: #ffffff;
+    border-radius: 16rpx;
+    box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.1);
+    min-height: 200rpx;
+}
+
+/* 文本区域样式 */
+.content-text {
+    display: block;
+    font-size: 50rpx;
+    font-weight: bold;
+    color: #333;
+    line-height: 1.6;
+    margin-right: 100rpx;
+    /* 避开头像区域 */
+    padding-bottom: 80rpx;
+    /* 避开按钮区域 */
+}
+
+/* 右上角头像 */
+.corner-avatar {
+    position: absolute;
+    right: 30rpx;
+    top: 30rpx;
+    width: 150rpx;
+    height: 150rpx;
+    border-radius: 50%;
+    border: 4rpx solid #fff;
+    box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
+    z-index: 2;
+}
+
+/* 左下角按钮 */
+/* WXSS */
+/* 基础按钮样式 */
+.corner-button {
+    position: absolute;
+    left: 30rpx;
+    bottom: 30rpx;
+    margin: 0;
+    height: 70rpx;
+    /* 固定高度 */
+    min-width: 180rpx;
+    /* 最小宽度 */
+    max-width: 140rpx;
+    /* 最大宽度 */
+    padding: 0 20rpx;
+    /* 左右内边距 */
+    display: inline-flex;
+    /* 弹性布局 */
+    justify-content: center;
+    /* 水平居中 */
+    align-items: center;
+    /* 垂直居中 */
+    border-radius: 15rpx;
+    border: 1rpx solid black;
+    background: white;
+    color: gray;
+    font-size: 28rpx;
+    white-space: nowrap;
+    /* 禁止换行 */
+    z-index: 2;
+    /* 新增自适应逻辑 */
+    width: auto;
+    /* 显式声明宽度自适应 */
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+/* 按钮文本样式 */
+.button-text {
+    overflow: hidden;
+    /* 超出隐藏 */
+    text-overflow: ellipsis;
+    /* 超出显示省略号 */
+    max-width: 100%;
+    /* 最大宽度限制 */
+}
+
+/* 点击反馈 */
+.button-hover {
+    opacity: 0.9;
+    transform: scale(0.98);
+    transition: all 0.2s ease;
+}
+
+/* 安全区域适配 */
+@media (ios) {
+    .corner-avatar {
+        top: max(20rpx, env(safe-area-inset-top));
+    }
+
+    .corner-button {
+        bottom: max(30rpx, env(safe-area-inset-bottom));
+    }
+}
