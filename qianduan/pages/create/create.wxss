@@ -1,0 +1,29 @@
+/* create.wxss */
+.container {
+  padding: 20rpx;
+}
+
+.form-item {
+  margin: 30rpx 0;
+  padding: 20rpx;
+  background: #fff;
+  border-radius: 10rpx;
+}
+
+.form-item text {
+  font-weight: bold;
+  color: #333;
+}
+
+input, textarea {
+  margin-top: 15rpx;
+  padding: 15rpx;
+  border: 1rpx solid #eee;
+  border-radius: 8rpx;
+}
+
+.submit-btn {
+  margin-top: 50rpx;
+  width: 80%;
+}
+
