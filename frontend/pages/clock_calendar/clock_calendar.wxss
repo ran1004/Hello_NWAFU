@@ -1,0 +1,116 @@
+/* pages/clock_calendar/clock_calendar.wxss */
+
+page {
+  --base-ratio: 1.75;
+  --border-width: 1px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 525rpx;
+  margin-bottom: 35rpx;
+}
+
+.prev-month, .next-month {
+  background: none;
+  border: none;
+  font-size: 42rpx;
+}
+
+.month-year {
+  font-size: 32rpx;
+  text-align: center;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  width: 525rpx;
+  margin-bottom: 35rpx;
+  font-size: 28rpx;
+}
+
+.weekDays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  width: 438rpx;
+  margin-bottom: 18rpx;
+  font-weight: bold;
+  text-align: center;
+}
+
+.day-name {
+  padding: 9rpx 0;
+}
+
+.calendar {
+  width: 525rpx;
+  border: var(--border-width) solid #ccc;
+  border-radius: 18rpx;
+  padding: 18rpx;
+}
+
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 18rpx;
+  width: 438rpx;
+}
+
+.day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  padding: 9rpx 0;
+}
+
+.day text {
+  font-size: 28rpx;
+  margin-bottom: 9rpx;
+}
+
+.today text {
+  font-weight: bold;
+  border-bottom: var(--border-width) solid red;
+}
+.today-text {  /* 新类名 */
+  font-weight: bold;
+  border-bottom: 1px solid red;
+}
+.punched {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  background-color: rgba(26, 173, 25, 0.2);
+}
+
+.punch-mark {
+  position: absolute;
+  bottom: -18rpx;
+  right: -18rpx;
+  color: green;
+  font-size: 25rpx;
+}
+
+.loading, .error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 32rpx;
+}
+
+.error {
+  color: red;
+}

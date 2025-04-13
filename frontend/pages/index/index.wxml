@@ -1,0 +1,9 @@
+<!--index.wxml-->
+<view class="container">
+<navigator url="/pages/clock_calendar/clock_calendar">  <button bindtap="showPopup" style="position: relative; left: 1rpx; top: -4rpx">查看打卡情况</button>
+</navigator>
+<text>增加缓存减少网络请求，添加下拉刷新功能，对网络请求添加重试机制</text>
+</view>
+
+
+

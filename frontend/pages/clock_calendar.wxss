@@ -1,0 +1,118 @@
+/* pages/clock_calendar/clock_calendar.wxss */
+
+/* viewport height（视口高度） 的缩写，1vh = 视口高度的 1%。 */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 80vh;
+  /* gap: 8px; */
+}
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 300px;
+  margin-bottom: 20px;
+}
+.prev-month, .next-month {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.month-year {
+  font-size: 18px;
+  text-align: center;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  width: 300px;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.weekDays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  width: 250px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.day-name {
+  padding: 5px 0;
+}
+
+.calendar {
+  width: 300px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  width: 250px;
+}
+
+.day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  padding: 5px 0;
+}
+
+.day text {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+/* .day.today text { */
+.today text {
+  /*color: #1AAD19 ; /* 今天的日期颜色 */
+  /*text-decoration: underline; /* 添加下划线 */
+  font-weight: bold ;/* 设置文字加粗 */
+  border-bottom: 2px solid red; /* 1px 红色下划线 */
+  /*padding-bottom: 0.5px; /* 调整文本与下划线的间距 */
+}
+
+.punched {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  background-color:  rgba(26, 173, 25, 0.2);
+}
+/* .day.punched text { */
+/* .punched text {
+  color: #1AAD19 ; /* 已打卡的日期颜色 
+} */
+
+.punch-mark {
+  position: absolute;
+  bottom: -10px;
+  right: -10px;
+  color: green;
+  font-size: 14px;
+}
+
+.loading, .error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 18px;
+}
+
+.error {
+  color: red;
+  cursor: pointer;
+}
