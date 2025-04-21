@@ -41,6 +41,6 @@ App({
 
   // 全局数据对象，用于存储小程序的全局数据
   globalData: {
-    userInfo: null // 用于存储用户信息，初始值为 null
+    userId: 1 // 用于存储用户信息，初始值为 null
   }
 })

@@ -1,0 +1,43 @@
+<!--pages/clock_calendar/clock_calendar.wxml-->
+<view class="container">
+  <!-- 加载指示器 -->
+  <view wx:if="{{isLoading}}" class="loading">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 错误提示 -->
+  <view wx:if="{{error}}" class="error" bindtap="handleError">
+    <text>{{error}}</text>
+  </view>
+
+  <!-- 日历头部 -->
+  <view wx:if="{{!isLoading && !error}}" class="calendar-header">
+    <button class="prev-month" bindtap="prevMonth">‹</button>
+    <view class="month-year">{{currentYear}}年{{currentMonth}}月</view>
+    <button class="next-month" bindtap="nextMonth">›</button>
+  </view>
+  
+  <!-- 统计信息 -->
+  <view wx:if="{{!isLoading && !error}}" class="stats">
+    <text>本月总打卡天数：{{totalPunchedDays}}</text>
+    <text>连续打卡天数：{{currentStreak}}</text>
+    <text>最长连续打卡天数：{{longestStreak}}</text>
+  </view>
+
+  <!-- 星期标题 -->
+  <view wx:if="{{!isLoading && !error}}" class="weekDays">
+    <view class="day-name" wx:for="{{weekDays}}" wx:key="index">{{item}}</view>
+  </view>
+
+  <!-- 日历日期 -->
+  <view wx:if="{{!isLoading && !error}}" class="days">
+    <view class="day" 
+         wx:for="{{days}}" 
+         wx:key="index" 
+         class="{{item.isToday ? 'today' : ''}} {{item.punched ? 'punched' : ''}}">
+      <text>{{item.day}}</text>
+      <view class="punch-mark" wx:if="{{item.punched}}">✔</view>
+    </view>
+  </view>
+  <navigator open-type="navigateBack" delta="1"> <button>回退</button></navigator>
+</view>

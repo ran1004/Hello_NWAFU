@@ -153,3 +153,23 @@
   font-size: 14rpx;
   color: #bebebe;
 }
+.time-picker {
+  margin: 100rpx 30rpx;
+  padding: 40rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.08);
+}
+
+.picker {
+  font-size: 32rpx;
+  color: #2c3e50;
+}
+.confirm-btn {
+  background: #88d8b0;
+  color: white;
+  margin: 40rpx;
+  border-radius: 50rpx;
+}
+
+

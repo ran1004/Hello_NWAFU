@@ -74,7 +74,7 @@ Page({
     uploadAllData(data) {
         return new Promise((resolve, reject) => {
             wx.uploadFile({
-                url: 'https://your-api.com/save',
+                url: 'http://127.0.0.1:8000/api/upload/',
                 filePath: data.avatarUrl,
                 name: 'avatar',
                 formData: {

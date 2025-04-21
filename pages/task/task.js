@@ -4,13 +4,13 @@ var util = require('../../utils/util.js')
 var app = getApp()
 Page({
   data: {
-    motto: '知乎--微信小程序版',
+    motto: '',
     userInfo: {}
   },
   //事件处理函数
   toQuestion: function() {
     wx.navigateTo({
-      url: '../question/question'
+      url: ''
     })
   },
   onLoad: function () {
@@ -26,5 +26,19 @@ Page({
   },
   tapName: function(event){
     console.log(event)
+  },
+
+  bindTimeChange(e) {
+    const index = e.detail.value
+    this.setData({
+      selectedIndex: index,
+      selectedMinute: parseInt(this.data.minutesList[index])
+    })
+  },
+
+  navigateToClockPage() {
+    wx.navigateTo({
+      url: `/pages/check/check?minutes=${this.data.selectedMinute}`
+    })
   }
 })

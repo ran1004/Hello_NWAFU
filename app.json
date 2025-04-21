@@ -1,12 +1,17 @@
 {
+  
   "pages": [
     "pages/index/index",
     "pages/more/more",
+    "pages/create/create",
     "pages/task/task",
     "pages/user/user",
     "pages/info/info",
-    "pages/info/profile"
+    "pages/info/profile",
+    "pages/check/check",
+    "pages/clock_calendar/clock_calendar"
   ],
+
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#07c160",
@@ -14,6 +19,7 @@
     "navigationBarTextStyle": "white",
     "enablePullDownRefresh": true
   },
+
   "tabBar": {
     "color": "#6265607",
     "selectedColor": "#07c160",
@@ -27,6 +33,12 @@
         "selectedIconPath": "images/index_focus.png"
       },
       {
+        "pagePath": "pages/create/create",
+        "text": "", 
+        "iconPath": "images/index.png",
+        "selectedIconPath": "images/index_focus.png"
+      },
+      {
         "pagePath": "pages/info/info",
         "text": "",
         "iconPath": "images/burger.png",
@@ -34,6 +46,27 @@
       }
     ]
   },
+
+  "permission": {
+    "scope.camera": {
+        "desc": "需要您的摄像头权限用于拍摄头像"
+    },
+    "scope.writePhotosAlbum": {
+        "desc": "需要您的相册权限用于选择照片"
+    },
+    "scope.userLocation": {
+        "desc": "需要您的位置信息用于打卡验证"
+    }
+},
+"requiredPrivateInfos": ["getLocation"],
+"privacy": {
+    "prompt": "template",
+    "title": "用户隐私保护提示",
+    "content": "获取位置信息用于展示当前位置"
+  },
+
+
+
   "networkTimeout": {
     "request": 10000,
     "downloadFile": 10000

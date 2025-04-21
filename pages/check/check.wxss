@@ -1,0 +1,164 @@
+/* 容器样式 */
+.container {
+    /* background-color: #b6f79d; 活力绿背景 */
+    min-height: 100vh;
+    padding: 32rpx;
+    /* 补充样式 */
+    background-size: cover;
+    background-repeat: no-repeat;
+    width: 100%;
+  }
+  
+  /* 顶部横幅 */
+  .top-banner {
+    /* background: transparent;  */
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 24rpx;
+    padding: 48rpx;
+    box-shadow: 0 8rpx 24rpx white;
+    margin-bottom: 48rpx;
+  }
+  
+  .activity-name {
+    display: block;
+    font-size: 50rpx;
+    font-weight: bold;
+    color: black;
+    text-align: center;
+    margin-bottom: 24rpx;
+  }
+  
+  .countdown-box {
+    display: inline-flex;
+    flex-direction: row;
+    justify-content:center;
+    align-items:baseline;
+  }
+  
+  .countdown-text {
+    font-size: 40rpx;
+    font-weight: bold;
+    color:black;
+    margin-right: 16rpx;
+    text-align: center;
+  }
+  
+  .countdown-time {
+    font-size: 40rpx;
+    color: #e74c3c;
+    font-weight: bolder;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+  }
+  .expired-tip {
+    font-size: 28rpx;
+    color: #e74c3c;
+  }
+  
+  /* 通用卡片样式 */
+  .photo-card, .location-card {
+    background: #ffffff;
+    opacity: 0.9;
+    border-radius: 24rpx;
+    padding: 32rpx;
+    width: 90%;
+    margin-bottom: 32rpx;
+    box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.08);
+  }
+  
+  .section-title {
+    display: block;
+    font-size: 34rpx;
+    color: #2c3e50;
+    margin-bottom: 32rpx;
+    font-weight: 500;
+  }
+  
+  /* 拍照区域 */
+  .camera-box {
+    height: 400rpx;
+    border: 4rpx dashed #a8e6cf;
+    border-radius: 24rpx;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .camera-icon {
+    width: 120rpx;
+    height: 120rpx;
+    margin-bottom: 24rpx;
+  }
+  
+  .camera-tip {
+    font-size: 28rpx;
+    color: #95a5a6;
+  }
+  .preview-image {
+    width: 100%;
+    height: 100%;
+    border-radius: 24rpx;
+  }
+  
+  /* 添加点击反馈效果 */
+  .camera-box:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+  
+  /* 添加过渡动画 */
+  .camera-box {
+    transition: all 0.2s ease-in-out;
+  }
+  
+  /* 定位区域 */
+  .location-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 32rpx;
+  }
+  
+  .location-icon {
+    width: 48rpx;
+    height: 48rpx;
+    margin-right: 24rpx;
+  }
+  
+  .address {
+    font-size: 30rpx;
+    color: #34495e;
+    flex: 1;
+  }
+  
+  .refresh-btn {
+    background: #f8f9fa;
+    border: 2rpx solid #a8e6cf;
+    color: #2c3e50;
+    font-size: 28rpx;
+    border-radius: 48rpx;
+    line-height: 1.5;
+  }
+  
+  /* 提交按钮 */
+  .submit-btn {
+    background: linear-gradient(135deg, #88d8b0, #a8e6cf);
+    color: #2c3e50;
+    font-size: 36rpx;
+    font-weight: bolder;
+    border-radius: 48rpx;
+    margin-top: 48rpx;
+    box-shadow: 0 4rpx 12rpx black;
+    border:1rpx solid black;
+    background: transparent;
+    align-content: center;
+    bottom: 20rpx;
+  }
+  
+  .submit-btn:active {
+    opacity: 0.9;
+    transform: translateY(2rpx);
+  }

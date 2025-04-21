@@ -24,8 +24,8 @@
             <input class="value input" value="{{userInfo.role}}" placeholder="请输入身份" bindinput="bindRoleInput" />
         </view>
         <view class="info-item">
-            <text class="label">院校</text>
-            <input class="value input" value="{{userInfo.university}}" placeholder="请输入院校" bindinput="bindUniversityInput" />
+            <text class="label">学院</text>
+            <input class="value input" value="{{userInfo.university}}" placeholder="请输入学院" bindinput="bindUniversityInput" />
         </view>
         <view class="info-item">
             <text class="label">学号</text>

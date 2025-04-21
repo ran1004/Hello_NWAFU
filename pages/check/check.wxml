@@ -1,0 +1,46 @@
+<view class="container" style="background-image: url({{bgImage}});">
+  <!-- 顶部活动信息 -->
+  <view class="top-banner">
+    <text class="activity-name">每日健康打卡</text>
+    <view class="countdown-box">
+      <text class="countdown-text">剩余时间：</text>
+      <text class="countdown-time {{ isExpired ? 'expired' : '' }}">
+      {{ countdownTime }}
+    </text>
+    <text wx:if="{{ isExpired }}" class="expired-tip">（已超时）</text>
+    </view>
+  </view>
+
+  <!-- 拍照区域 -->
+  <!-- index.wxml 优化版 -->
+<view class="photo-card">
+  <view class="camera-box" bindtap="handleTakePhoto">
+    <!-- 添加拍摄预览功能 -->
+    <block wx:if="{{photoPath}}">
+      <image src="{{photoPath}}" class="preview-image" mode="aspectFit"/>
+    </block>
+    <block wx:else>
+      <image src="/images/camera.png" class="camera-icon"/>
+      <text class="camera-tip">点击拍摄打卡照片</text>
+    </block>
+  </view>
+</view>
+
+  <!-- 定位区域 -->
+  <view class="location-card">
+    <text class="section-title">当前位置</text>
+    <view class="location-info">
+      <image src="/images/location.png" class="location-icon"/>
+      <text class="address">{{ locationInfo.address|| '正在获取定位信息...' }}</text>
+    </view>
+    <!-- 刷新按钮（带加载状态） -->
+    <button 
+        class="refresh-btn"
+        bindtap="getLocation"          
+        loading="{{ locationInfo.refreshing }}" 
+    >{{ errorMsg || '获取位置信息' }}</button>
+  </view>
+
+  <!-- 提交按钮 -->
+  <button class="submit-btn" bind:tap="handleSubmit">打卡</button>
+</view>
