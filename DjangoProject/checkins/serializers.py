@@ -1,24 +1,80 @@
-# checkins/serializers.py
-
-# 这是一个基于 Django REST Framework (DRF) 的序列化器模块，
-# 用于将 User 和 Checkin 模型的数据转换为 JSON 格式（或其他可传输格式），以便在 API 中进行数据交互
-
+# 导入DRF的序列化器模块和当前应用的模型
 from rest_framework import serializers
-from .models import Checkin
-from django.contrib.auth.models import User
-
-#将 User 模型的数据序列化为 JSON
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User #绑定到 Django 内置的 User 模型。
-        fields = ['id', 'username'] #仅序列化 id 和 username 字段，其他字段（如密码、邮箱）将被忽略。
-
-#将 Checkin 模型的数据序列化为 JSON，并嵌套序列化关联的用户信息
-class CheckinSerializer(serializers.ModelSerializer):
-
-    user = UserSerializer(read_only=True)  # 嵌套序列化Checkin模型中user字段，外键关联到 User 模型
-    #read_only=True表示该字段仅用于序列化输出（前端展示），不可通过 API 请求直接修改
+from .models import CheckinRecord
+from django.utils import timezone
+from datetime import datetime
+import pytz  # 需要安装：pip install pytz
+# 定义打卡记录序列化器
+class CheckinRecordSerializer(serializers.ModelSerializer):
+    # 定义两个只写JSON字段（核心功能入口）
+    activity = serializers.JSONField(write_only=True)  # 接收活动信息的嵌套对象
+    record = serializers.JSONField(write_only=True)    # 接收打卡记录的嵌套对象
 
     class Meta:
-        model = Checkin
-        fields = ['id', 'user', 'checkin_time']
+        model = CheckinRecord
+        fields = ['activity', 'record']  # 指定暴露的字段（非模型直接字段）
+
+    # 自定义验证方法（数据清洗中枢）
+    def validate(self, data):
+        print("序列器")
+        # 增强验证逻辑
+        if 'activity' not in data or 'record' not in data:
+            raise serializers.ValidationError("请求体结构错误")
+
+        activity = data['activity']
+        record = data['record']
+
+        # 活动信息验证---
+        if not all(key in activity for key in ['id', 'title']):
+            raise serializers.ValidationError({"activity": "缺少必要字段"})
+
+        # 记录信息验证
+        required_fields = ['photo_url', 'latitude', 'longitude', 'address', 'timestamp']
+        missing = [field for field in required_fields if field not in record]
+        if missing:
+            raise serializers.ValidationError({"record": f"缺少字段: {', '.join(missing)}"})
+        # 解析时间字符串并转换时区
+        try:
+            timestamp_str = data['record']['timestamp']
+
+            # 处理带 'Z' 的 UTC 时间字符串
+            if 'Z' in timestamp_str:
+                # 替换 'Z' 为 '+00:00' 以便解析
+                normalized_str = timestamp_str.replace('Z', '+00:00')
+                naive_time = datetime.fromisoformat(normalized_str)
+                utc_time = naive_time.replace(tzinfo=pytz.UTC)
+                # 转换为本地时区（如 Asia/Shanghai）
+                local_time = utc_time.astimezone(timezone.get_current_timezone())
+            else:
+                # 假定时间字符串已经是本地时间（无时区信息）
+                naive_time = datetime.fromisoformat(timestamp_str)
+                local_time = timezone.make_aware(naive_time, timezone.get_current_timezone())
+            print("本地时间:",local_time)
+            # 更新记录中的时间字段
+            data['record']['timestamp'] = local_time
+        except (KeyError, ValueError) as e:
+            raise serializers.ValidationError({"timestamp": "时间格式错误，示例：2025-04-23T09:57:51Z"})
+
+        print("验证完毕")
+        # 数据重组，将JSON对象平铺为数据库模型对象
+        validated_data = {
+            'activity_id': activity['id'],
+            'activity_title': activity['title'],
+            ** record  # 这里record中的timestamp已被转换为datetime对象
+        }
+        return validated_data
+
+    def create(self, validated_data):
+        #关键修改：直接使用通过认证的用户对象
+        return CheckinRecord.objects.create(
+            user=self.context['request'].user,
+         ** validated_data
+        )
+
+    def to_representation(self, instance):
+        """返回本地时区时间"""
+        local_time = instance.timestamp.astimezone(timezone.get_current_timezone())
+        return {
+            'activity_title': instance.activity_title,
+            'timestamp': local_time.isoformat()
+        }

@@ -10,7 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+
 from pathlib import Path
+import pymysql
+pymysql.install_as_MySQLdb()
+
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,24 +37,53 @@ ALLOWED_HOSTS = ['*']
 CORS_ALLOW_ALL_ORIGINS = True
 
 # Application definition
-
+AUTH_USER_MODEL = 'login.User'
+# 确保正确的应用顺序
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
+    # 基础应用
     'django.contrib.contenttypes',
+    'django.contrib.auth',
+
+    # 自定义用户模型应用（必须在auth之后）
+    'login.apps.LoginConfig',
+
+    # 其他Django内置应用
+    'django.contrib.admin',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'activity.apps.ActivityConfig' , # 新增此行
-    'corsheaders',
-    'channels',
-    'broadcast',
+
     # 第三方应用
+    'corsheaders',
     'rest_framework',
-    # 你的应用
-    'checkins',
-    'users',
+    'channels',
+
+    # 您的自定义应用
+    'activity.apps.ActivityConfig',
+    'checkins.apps.CheckinsConfig',
+    'broadcast',
 ]
+
+
+
+# DRF配置
+JWT_SECRET = '201126djc'
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'myutils.JWTAuthentication',  # 启用自定义JWT认证
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',  # 全局默认需要认证
+    ]
+}
+
+# 跨域配置（如果前端单独部署）
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",  # 前端开发地址
+    "https://your-production-domain.com"
+]
+
+
+
 
 # Channels配置
 ASGI_APPLICATION = 'DjangoProject.asgi.application'
@@ -154,4 +189,3 @@ STATIC_URL = 'static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

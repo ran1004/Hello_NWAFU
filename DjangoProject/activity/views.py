@@ -10,6 +10,10 @@ from datetime import datetime
 from django.views.decorators.http import require_GET
 from django.utils import timezone
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .serializers import ActivitySerializer
+
 @csrf_exempt
 def create_activity(request):
     if request.method == 'POST':
@@ -74,3 +78,15 @@ def list_activities(request):
         import traceback
         traceback.print_exc()
         return JsonResponse({"code": 1, "msg": f"服务器内部错误: {str(e)}"}, status=500)
+
+
+@api_view(['GET'])
+def wechat_activity_list(request):
+    print("123")
+    activities = Activity.objects.all().order_by('-created_at')  # 按创建时间倒序
+    serializer = ActivitySerializer(activities, many=True)
+    return Response({
+        'code': 200,
+        'data': serializer.data,
+        'message': 'success'
+    })

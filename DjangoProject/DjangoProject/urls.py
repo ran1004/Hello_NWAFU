@@ -20,11 +20,16 @@ from django.contrib import admin
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from checkins.views import CheckinListView
-from utils.views import check_database,get_users
 from django.contrib.auth import views as auth_views
 from activity import views
 from rest_framework import status
+
+from checkins.views import CheckinSubmitView
+from login.views import auth_login
+from login.views import complete_registration
+from login.views import update_profile
+
+
 
 @csrf_exempt
 def test_api(request):
@@ -39,11 +44,10 @@ urlpatterns = [
     # path('create/', views.create_activity, name='create_activity')  # ✔️ 关联到自定义视图函数
     path('api/activity/create/', views.create_activity, name='create_activity'),
     path('api/activity/list/', views.list_activities, name='list_activities'),  # 新增列表接口
+    path('api/activity/wechat/list/', views.wechat_activity_list, name='wechat_activity_list'),
     path('api/test/', test_api),
-    path('api/', include('checkins.urls')),  # 只有这个是查询打卡记录用到的
-    path('api/checkins/', CheckinListView.as_view(), name='checkin-list'),  # 合并子路由
-    path('api/getUserCheckinData/', get_users),
-    #下面两个定义用户登录和登出功能的 URL 路由配置，它们使用了 Django 内置的认证视图（LoginView 和 LogoutView）
-    path('login/', auth_views.LoginView.as_view(), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('login/test', auth_login, name='login'),
+    path('login/register', complete_registration, name='register'),
+    path('user/update', update_profile, name='update_profile'),
+    path('checkins/submit-check', CheckinSubmitView.as_view(), name='checkin'),
 ]
