@@ -1,52 +1,47 @@
 <!-- create.wxml -->
 <view class="container">
-  <form bindsubmit="formSubmit">
-    <view class="form-item">
-      <text>活动标题：</text>
-      <input name="title" placeholder="请输入标题" />
-    </view>
+    <form bindsubmit="formSubmit">
+        <!-- 活动标题 -->
+        <view class="form-item">
+            <text class="form-label">活动标题</text>
+            <input name="title" placeholder="请输入标题" placeholder-class="placeholder" class="form-input" />
+        </view>
 
-    <view class="form-item">
-      <text>活动内容：</text>
-      <textarea name="content" placeholder="请输入详细内容" auto-height />
-    </view>
+        <!-- 活动内容 -->
+        <view class="form-item">
+            <text class="form-label">活动内容</text>
+            <textarea name="content" placeholder="请输入详情" placeholder-class="placeholder" class="form-textarea" auto-height />
+        </view>
+        <!-- create.wxml 时间选择器部分 -->
+        <view class="form-item">
+            <text class="form-label">活动时间</text>
+            <view class="time-container">
+                <!-- 🌟 纵向排列结构 -->
+                <view class="time-item">
+                    <text class="time-label">日期</text>
+                    <picker mode="date" value="{{selectedDate}}" start="{{startDate}}" end="{{endDate}}" bindchange="bindDateChange">
+                        <view class="time-value-box">
+                            <text class="time-value">{{dateStr || '选择日期'}}</text>
+                        </view>
+                    </picker>
+                </view>
 
-    <!-- <view class="form-item">
-      <text>活动时间：</text>
-      <picker name="datetime" mode="multiSelector" 
-              fields="second" 
-              bindchange="bindTimeChange"
-              value="{{timeIndex}}"
-              range="{{timeRange}}">
-        <input placeholder="请选择日期时间" disabled value="{{formattedTime}}" />
-      </picker>
-    </view> -->
+                <view class="time-divider"></view> <!-- 🌟 新增分隔线 -->
 
-    <!-- 调整后的时间选择区域 -->
-    <view class="form-item">
-  <text>活动时间：</text>
-  <view class="time-picker">
-    <!-- 日期选择 -->
-    <picker 
-      mode="date" 
-      value="{{selectedDate}}"
-      start="{{startDate}}"
-      end="{{endDate}}"
-      bindchange="bindDateChange"
-    >
-      <text class="placeholder">{{dateStr || "选择日期"}}</text>
-    </picker>
-    
-    <!-- 时间选择 -->
-    <picker 
-      mode="time" 
-      value="{{selectedTime}}"
-      bindchange="bindTimeChange"
-    >
-      <text class="placeholder">{{timeStr || "选择时间"}}</text>
-    </picker>
-  </view>
-</view>
-    <button form-type="submit" type="primary" class="submit-btn">发布活动</button>
-  </form>
+                <view class="time-item">
+                    <text class="time-label">时间</text>
+                    <picker mode="time" value="{{selectedTime}}" bindchange="bindTimeChange">
+                        <view class="time-value-box">
+                            <text class="time-value">{{timeStr || '选择时间'}}</text>
+                        </view>
+                    </picker>
+                </view>
+            </view>
+        </view>
+
+        <!-- 🌟 按钮样式调整 -->
+        <button form-type="submit" class="submit-btn" hover-class="btn-hover">
+            发布活动
+        </button>
+    </form>
 </view>

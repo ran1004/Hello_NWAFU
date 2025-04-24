@@ -1,57 +1,98 @@
-<scroll-view scroll-y="true" class="container" 
-             bindscrolltoupper="upper" upper-threshold="10" 
-             lower-threshold="5" bindscrolltolower="lower"  
-             scroll-into-view="{{toView}}" scroll-top="{{scrollTop}}">
-  <!-- 搜索栏区域 -->
-  <view class="search flex-wrp">
-      <!-- 搜索栏左侧 -->
-      <view class="search-left flex-item">
-          <image src="../../images/search4.png"></image> <!-- 搜索图标 -->
-          <input placeholder="搜索话题, 问题或人" placeholder-class="search-placeholder"/> <!-- 搜索输入框 -->
-      </view>
-      <!-- 搜索栏右侧 -->
-      <view class="search-right flex-item" bindtap="lightning"> <!-- 点击事件绑定到 lightning 函数 -->
-          <image src="../../images/lighting.png"></image> <!-- 右侧图标 -->
-      </view>
-  </view> 
-  <block wx:for="{{feed}}" wx:for-index="idx" wx:for-item="item" data-idx="{{idx}}">
-      <view class="feed-item"> <!-- 每个动态项的容器 -->
-      
-          <view class="feed-source"> <!-- 动态来源区域 -->
-              <a class="">
-                  <view class="avatar">
-                      <image src="{{item.feed_source_img}}"></image> <!-- 动态来源的头像 -->
-                  </view>
-                  <text>{{item.feed_source_name}}{{item.feed_source_txt}}</text> <!-- 动态来源的名称和文本 -->
-              </a>
+<!--pages/index/index.wxml-->
+<view class="page-container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <icon type="search" size="16" class="search-icon" />
+    <input 
+      placeholder="搜索活动名称" 
+      placeholder-class="placeholder-style"
+      confirm-type="search"
+    />
+  </view>
 
-              <!-- <view class="item-more" mode="aspectFit"> 
-                <image src="../../images/more.png"></image>
-              </view>    -->
-              
-              <!-- <image src="../../images/more.png"></image> -->
-              
-              <view class="" bindtap="handleMoreTap">
-                <image class="item-more" mode="aspectFit" src="../../images/more.png"></image>
-              </view>
+  <!-- 骨架屏加载状态 -->
+  <view wx:if="{{isLoading && page === 1}}" class="loading-container">
+    <view class="skeleton-item" wx:for="{{[1,2,3]}}" wx:key="*this">
+      <view class="skeleton-image"></view>
+      <view class="skeleton-content">
+        <view class="skeleton-title"></view>
+        <view class="skeleton-text"></view>
+        <view class="skeleton-text short"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 错误提示 -->
+  <!-- <view wx:if="{{loadError}}" class="error-container">
+    <image src="/images/error.png" mode="aspectFit" class="error-image" />
+    <text class="error-text">加载失败，请重试</text>
+    <button size="mini" type="primary" bindtap="onRetry" class="retry-btn">重新加载</button>
+  </view> -->
+
+  <!-- 空状态 -->
+  <view wx:if="{{!isLoading && activities.length === 0 && !loadError}}" class="empty-container">
+    <text class="empty-text">暂无活动数据</text>
+  </view>
+
+  <!-- 活动列表 -->
+  <scroll-view 
+    wx:if="{{activities.length > 0}}"
+    scroll-y 
+    class="activity-scroll"
+    bindscrolltolower="onReachBottom"
+    refresher-enabled="{{false}}"
+    bindrefresherrefresh="refreshData"
+    refresher-triggered="{{isRefreshing}}"
+  >
+    <view class="activity-list">
+      <view 
+        class="activity-card" 
+        wx:for="{{activities}}" 
+        wx:key="id"
+        data-id="{{item.id}}"
+      >
+        <image class="activity-image" src="{{item.cover_image || '/images/avatar.webp'}}" mode="aspectFill" />
+        <view class="activity-content">
+          <view class="activity-header">
+            <text class="activity-title">{{item.title}}</text>
+            
+
+            <view class="activity-status status-{{item.status === '进行中' ? 'active' : item.status === '已结束' ? 'ended' : 'pending'}}">
+            <!-- 背景层 -->
+            <view class="status-bg"></view>
+            <!-- 文字层 -->
+            <text class="status-text">{{item.status}}</text>
+            </view>
 
           </view>
-
-          <view class="feed-content"> <!-- 动态内容区域 -->
-              <view class="question" qid="{{question_id}}" bindtap="bindTaskTap"> <!-- 问题区域 -->
-                  <a class="question-link">
-                      <text>{{item.question}}</text> <!-- 问题文本 -->
-                  </a>
-              </view>
-              <view class="answer-body"> <!-- 内容区域 -->
-                  <view bindtap="bindTaskTap"> <!-- 点击事件绑定到 bindItemTap 函数 -->
-                      <text class="answer-txt" aid="{{answer_id}}">{{item.answer_ctnt}}</text> <!-- 文本 -->
-                  </view>
-                  <view class="answer-actions" bindtap="bindTaskTap"> <!-- 操作区域 -->
-                  </view>
-              </view>
+          <view class="activity-meta">
+            <text class="activity-time">⏱ {{item.activity_time}}</text>
+            <text class="activity-location">📍 {{item.location || '地点待定'}}</text>
+          </view>
+          <!-- 新增参加按钮 -->
+          <view 
+            class="join-btn {{item.status !== '进行中' ? 'disabled' : ''}}" 
+            bindtap="handleJoin"
+            data-item="{{item}}"
+          >
+            <view class="btn-bg"></view>
+            <text class="btn-text">点击参与</text>
           </view>
 
+
+        </view>
       </view>
-  </block>
-</scroll-view>
+
+      <!-- 加载更多提示 -->
+      <!-- <view wx:if="{{isLoading && page > 1}}" class="load-more">
+        <loading type="circles" color="#6190E8" />
+        <text>正在加载更多...</text>
+      </view> -->
+
+      <view wx:if="{{!hasMore && !isLoading}}" class="no-more">
+        <text>已经到底了~</text>
+      </view>
+
+    </view>
+  </scroll-view>
+</view>

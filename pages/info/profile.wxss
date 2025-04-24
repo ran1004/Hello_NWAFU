@@ -1,5 +1,38 @@
 /* pages/info/profile.wxss */
 
+/*调整部分*/
+/* 新增页面背景渐变 */
+page {
+    background: linear-gradient(180deg, #f0f9f0 0%, #f8f8f8 100%);
+    min-height: 100vh;
+}
+/* 内容区域优化 */
+.content {
+    background: #fff;
+    border-radius: 24rpx;
+    margin: 20rpx 30rpx;
+    box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.04);
+}
+/* 只读输入框样式优化 */
+.readonly {
+    background: #fafafa !important; 
+    color: #666 !important;      
+    border-radius: 12rpx;
+    padding: 16rpx 20rpx !important;
+    border: 2rpx solid #eee !important; 
+    cursor: not-allowed;
+}
+/* 占位符颜色统一 */
+.readonly .placeholder {
+    color: #bbb !important;      
+}
+/* 输入框聚焦优化 */
+.input:focus {
+    background: #f5fff5; 
+    border-radius: 12rpx;
+    border: 2rpx solid #07c160 !important;
+}
+
 /* 导航栏样式 */
 /* 导航栏容器 */
 .nav-bar {
@@ -7,6 +40,7 @@
     height: 100rpx;
     background: #07c160;
     padding: 0 30rpx;
+    box-shadow: 0 4rpx 12rpx rgba(7, 193, 96, 0.1);
   }
   
   /* 左侧文本定位 */
@@ -79,15 +113,17 @@
 /* 信息列表 */
 .info-list {
     background: #fff;
-    padding: 0 30rpx;
+    padding: 20rpx 0;
 }
 
 .info-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 30rpx 0;
+    /* padding: 30rpx 0; */
     border-bottom: 1rpx solid #eee;
+    padding: 32rpx 30rpx; 
+    border-bottom: 2rpx solid #f0f0f0; 
 }
 
 .label {
@@ -108,6 +144,7 @@
     color: #333;
     font-size: 35rpx;
     padding: 10rpx 20rpx;
+    transition: all 0.3s ease;
   }
   
   /* 聚焦状态 */

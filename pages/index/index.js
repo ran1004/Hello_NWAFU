@@ -7,130 +7,266 @@ var util = require('../../utils/util.js')
 // 获取全局应用实例，用于访问全局数据或方法
 var app = getApp()
 
+const throttle = (fn, interval = 500) => {
+  let lastTime = 0;
+  return function(...args) {
+    const now = new Date().getTime();
+    if (now - lastTime >= interval) {
+      fn.apply(this, args);
+      lastTime = now;
+    }
+  };
+};
+
+// pages/index/index.js
 Page({
   data: {
-    feed: [], // 用于存储首页的动态数据
-    feed_length: 0 // 动态数据的长度
+    activities: [],
+    isLoading: false,
+    isRefreshing: false,
+    hasMore: true,
+    page: 1,
+    pageSize: 10
   },
-   // 页面加载时触发的生命周期函数
-   onLoad: function () {
-    console.log('onLoad11111111') // 打印日志，表示页面加载
-    var that = this // 保存 this 的引用，用于闭包中访问页面对象
-    // 调用应用实例的方法获取全局数据
-    this.getData()
-  },
-
-
-  // 事件处理函数：处理动态项的点击事件
-  bindTaskTap: function() {
-    // 导航到回答页面
-    wx.navigateTo({
-      url: '../task/task'
-    })
-  },
-  bindUserTap: function() {
-    // 导航到回答页面
-    wx.navigateTo({
-      url: '../user/user'
-    })
-  },
-
-  upper: function() {
-    console.log('滚动到顶部');
-  
-  },
-  lower: function() {
-    console.log('滚动到底部');
+  onLoad: function(options) {
+    console.log('index-----------onload----------------');
+    this.loadInitialData();
     
   },
+  loadInitialData: function() {
+    // 显示加载状态（骨架屏可用）
+    wx.showLoading({
+      title: '加载中...',
+      mask: true
+    });
+
+    // 获取本地缓存数据（提升用户体验）
+    const cacheData = wx.getStorageSync('cachedActivities');
+    if (cacheData) {
+      console.log('加载activities缓存');
+      this.setData({ activities: cacheData });
+    }
+
+    // 请求API数据
+    wx.request({
+      // url: 'http://127.0.0.1:8000/api/activity/wechat/list/',
+      url: `${app.globalData.AUTH_API}api/activity/wechat/list/`,
+      method: 'GET',
+      data: {
+        page: this.data.page,
+        page_size: this.data.pageSize
+      },
+      header: {
+        'content-type': 'application/json',
+        'Authorization':  wx.getStorageSync('auth_token')
+      },
+      success: (res) => {
+        if (res.statusCode === 200 && res.data.code === 200) {
+          // 处理并格式化数据
+          const formattedData = this.formatActivityData(res.data.data);
+          
+          // 更新数据和状态
+          this.setData({
+            activities: formattedData,
+            isLoading: false,
+            hasMore: res.data.data.length >= this.data.pageSize,
+          });
+
+          console.log('res.data.data.length:', res.data.data.length);
+          
+          // 缓存数据
+          wx.setStorageSync('cachedActivities', formattedData);
+        } else {
+          this.handleLoadError(res.data.message || '数据加载失败');
+        }
+      },
+      fail: (err) => {
+        this.handleLoadError('网络连接失败');
+        console.error('API请求失败:', err);
+      },
+      complete: () => {
+        wx.hideLoading();
+      }
+    });
+  },
+  /**
+   * 格式化活动数据
+   */
+  formatActivityData: function(data) {
+    return data.map(item => ({
+      ...item,
+      activity_time: this.formatTime(item.activity_time),
+      // 添加状态标识
+      status: this.getActivityStatus(item.start_time, item.end_time)
+    }));
+  },
+
+    /**
+   * 获取活动状态
+   */
+  getActivityStatus: function(startTime, endTime) {
+    const now = new Date();
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    
+    if (now < start) return '未开始';
+    if (now > end) return '已结束';
+    return '进行中';
+  },
+
+  /**
+   * 处理加载错误
+   */
+  handleLoadError: function(message) {
+    this.setData({
+      isLoading: false,
+      loadError: true
+    });
+    
+    wx.showToast({
+      title: message,
+      icon: 'none',
+      duration: 2000
+    });
+  },
+
+  /**
+   * 重新加载数据
+   */
+  onRetry: function() {
+    this.setData({
+      loadError: false,
+      isLoading: true
+    });
+    this.loadInitialData();
+  },
+
+
+  // 基础刷新函数
+  refreshData: function(resetPage = true) {
+    if (this.data.isLoading) return;
+    
+    this.setData({
+      isLoading: true,
+      isRefreshing: resetPage
+    });
+
+    const params = {
+      page: resetPage ? 1 : this.data.page,
+      page_size: this.data.pageSize
+    };
+
+    wx.request({
+      url: `${app.globalData.AUTH_API}api/activity/wechat/list/`,
+      method: 'GET',
+      data: params,
+      success: (res) => {
+        if (res.statusCode === 200 && res.data.code === 200) {
+          const newData = this.formatActivityData(res.data.data);
+          // const newData = formattedData.map(item => ({
+          //   ...item,
+          //   activity_time: this.formatTime(item.activity_time)
+          // }));
+
+          this.setData({
+            activities: resetPage ? newData : [...this.data.activities, ...newData],
+            page: params.page,
+            hasMore: newData.length >= this.data.pageSize
+          });
+        } else {
+          wx.showToast({
+            title: res.data.message || '数据加载失败',
+            icon: 'none'
+          });
+        }
+      },
+      fail: (err) => {
+        console.error('请求失败:', err);
+        wx.showToast({
+          title: '网络连接失败',
+          icon: 'none'
+        });
+      },
+      complete: () => {
+        this.setData({
+          isLoading: false,
+          isRefreshing: false
+        });
+        wx.stopPullDownRefresh();
+      }
+    });
+  },
+
+  // 时间格式化方法
+  formatTime: function(timestamp) {
+    const date = new Date(timestamp);
+    return `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
+  },
+
+   /**
+   * 页面触底事件的处理函数
+   */
+  onReachBottom: throttle(function() {
+    if (this.shouldNotLoadMore()) {
+      return;
+    }
+    
+    console.log('加载下一页，当前页码:', this.data.page);
+    
+    this.setData({ 
+      page: this.data.page + 1 
+    });
+    
+    // this.loadMoreData();
+  }, 1000), // 添加节流控制
   
-  lightning: function(){
-    console.log('闪电');
+  /**
+   * 判断是否应该阻止加载更多
+   */
+  shouldNotLoadMore: function() {
+    return this.data.isLoading || 
+           !this.data.hasMore || 
+           this.data.loadError;
   },
-  // scrollToItem: function() {
-  //   this.setData({
-  //     toView: 'item3' // 滚动到 id 为 "item3" 的元素
-  //   });
-  // },
-  // scrollToTop: function() {
-  //   this.setData({
-  //     scrollTop: 100 // 滚动到距离顶部 100px 的位置
-  //   });
-  // }
-
-  // 网络请求数据，实现首页刷新（未使用）
-  refresh0: function(){
-    var index_api = '' // 定义接口地址（此处为空，未使用）
-    util.getData(index_api) // 调用工具模块的 getData 方法请求数据
-        .then(function(data){
-          // this.setData({ // 设置数据到页面（此处未使用）
-          // });
-          console.log(data) // 打印请求返回的数据
-        })
+  
+  /**
+   * 加载更多数据（与refreshData分离）
+   */
+  loadMoreData: function() {
+    this.refreshData(false);
   },
 
-  // 使用本地 fake 数据实现刷新效果s
-  getData: function(){
-    var feed = util.getData2() // 调用工具模块的 getData2 方法获取本地模拟数据
-    console.log("loaddata") // 打印日志
-    var feed_data = feed.data // 获取数据部分
-    this.setData({ // 设置数据到页面
-      feed: feed_data, // 更新动态数据
-      feed_length: feed_data.length // 更新动态数据长度
-    })
-  },
-  // 刷新函数
-  refresh: function(){
-    // 显示加载提示
-    wx.showToast({
-      title: '刷新中', // 提示内容
-      icon: 'loading', // 加载图标
-      duration: 3000 // 持续时间
-    })
-    var feed = util.getData2() // 获取本地模拟数据
-    console.log("loaddata") // 打印日志
-    var feed_data = feed.data // 获取数据部分
-    this.setData({ // 更新页面数据
-      feed: feed_data,
-      feed_length: feed_data.length
-    })
-    // 设置定时器，3秒后显示刷新成功的提示
-    setTimeout(function(){
+  handleJoin: function(e) {
+    const activity = e.currentTarget.dataset.item; // 确保WXML传递了item
+    
+    // 检查活动状态
+    if (activity.status !== '进行中') {
       wx.showToast({
-        title: '刷新成功', // 提示内容
-        icon: 'success', // 成功图标
-        duration: 2000 // 持续时间
-      })
-    },3000)
-  },
+        title: '该活动不可参与',
+        icon: 'none',
+        duration: 2000
+      });
+      return;
+    }
 
-  // 使用本地 fake 数据实现继续加载效果
-  nextLoad: function(){
-    // 显示加载提示
-    wx.showToast({
-      title: '加载中', // 提示内容
-      icon: 'loading', // 加载图标
-      duration: 4000 // 持续时间
-    })
-    var next = util.getNext() // 获取本地模拟的下一页数据
-    console.log("continueload") // 打印日志
-    var next_data = next.data // 获取数据部分
-    this.setData({ // 更新页面数据
-      feed: this.data.feed.concat(next_data), // 将新数据追加到现有数据中
-      feed_length: this.data.feed_length + next_data.length // 更新数据长度
-    })
-    // 设置定时器，3秒后显示加载成功的提示
-    setTimeout(function(){
-      wx.showToast({
-        title: '加载成功', // 提示内容
-        icon: 'success', // 成功图标
-        duration: 2000 // 持续时间
-      })
-    },3000)
+    // 跳转到活动详情页
+    wx.navigateTo({
+      url: `/pages/task/task?data=${encodeURIComponent(JSON.stringify(activity))}`,
+      success: () => {
+        console.log('跳转成功，活动ID:', activity.id);
+      },
+      fail: (err) => {
+        console.error('跳转失败:', err);
+        wx.showToast({
+          title: '跳转失败，请重试',
+          icon: 'none'
+        });
+      }
+    });
   },
-  handleMoreTap: function() {
-    // 在这里处理点击事件
-    console.log('...被点击了');
-    // 您可以添加更多的逻辑，例如导航到另一个页面，或者触发一个事件
+  onPullDownRefresh() {
+    console.log('--------下拉刷新触发---------');
+    this.refreshData();
   }
-})
+
+});

@@ -96,7 +96,7 @@ Page({
       data: activityData,
       header: {
         'content-type': 'application/json',
-        'Authorization': `Bearer ${app.globalData.token}`
+        'Authorization': wx.getStorageSync('auth_token')
       },
       success: (res) => {
         if (res.data.code === 200) {

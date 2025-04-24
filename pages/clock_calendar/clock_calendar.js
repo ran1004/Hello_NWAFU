@@ -1,4 +1,7 @@
 // pages/clock_calendar/clock_calendar.js
+
+const app = getApp();
+
 Page({
   data: {
     currentYear: new Date().getFullYear(),
@@ -23,7 +26,7 @@ Page({
     this.setData({ isLoading: true, error: null });
 
     wx.request({
-      url: 'http://127.0.0.1:8000/api/checkins/',// 替换为的后端接口地址
+      url: '${app.globalData.AUTH_API}api/checkins/',// 替换为的后端接口地址
       method: 'GET',
       data: {
         // year: year,

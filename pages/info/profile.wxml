@@ -1,7 +1,7 @@
 <!-- 导航栏 -->
 <view class="nav-bar">
     <text class="nav-text">编辑个人信息</text>
-    <button class="save-btn" bindtap="saveProfile">保存</button>
+    <button class="save-btn" bindtap="handleRegistration">保存</button>
 </view>
 
 <!-- 主体内容 -->
@@ -21,15 +21,15 @@
         </view>
         <view class="info-item">
             <text class="label">身份</text>
-            <input class="value input" value="{{userInfo.role}}" placeholder="请输入身份" bindinput="bindRoleInput" />
+            <input class="value input readonly" value="{{userInfo.role}}" placeholder="学生" bindinput="bindRoleInput"  disabled/>
         </view>
         <view class="info-item">
-            <text class="label">学院</text>
-            <input class="value input" value="{{userInfo.university}}" placeholder="请输入学院" bindinput="bindUniversityInput" />
+            <text class="label">班级</text>
+            <input class="value input" value="{{userInfo.class_name}}" placeholder="请输入学院" bindinput="bindUniversityInput" />
         </view>
         <view class="info-item">
             <text class="label">学号</text>
-            <input class="value input" value="{{userInfo.studentId}}" placeholder="请输入学号" bindinput="bindStudentIdInput" type="number" />
+            <input class="value input" value="{{userInfo.student_id}}" placeholder="请输入学号" bindinput="bindStudentIdInput" type="number" />
         </view>
         <view class="info-item">
             <text class="label">邮箱</text>

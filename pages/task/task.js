@@ -37,8 +37,15 @@ Page({
   },
 
   navigateToClockPage() {
-    wx.navigateTo({
-      url: `/pages/check/check?minutes=${this.data.selectedMinute}`
-    })
+// 假设在上个页面的跳转逻辑中
+wx.navigateTo({
+    url: `/pages/check/check?activity=${encodeURIComponent(JSON.stringify({
+      id: 123,
+      title: '每日健康打卡',
+      startTime: '2023-10-01',
+      timeLimit:'',
+      deadline: '2023-10-31'
+    }))}`
+  })
   }
 })
