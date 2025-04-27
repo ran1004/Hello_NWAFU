@@ -18,6 +18,9 @@ const throttle = (fn, interval = 500) => {
   };
 };
 
+
+
+
 // pages/index/index.js
 Page({
   data: {
@@ -28,10 +31,23 @@ Page({
     page: 1,
     pageSize: 10
   },
+  formatTime(time) {
+    if (!time) return '';
+    const date = new Date(time);
+    // 获取年月日
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // 月份从0开始
+    const day = date.getDate().toString().padStart(2, '0');
+    // 获取时间（HH:mm）
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    // 返回格式：YYYY-MM-DD HH:mm
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+  },
+
   onLoad: function(options) {
     console.log('index-----------onload----------------');
     this.loadInitialData();
-    
   },
   loadInitialData: function() {
     // 显示加载状态（骨架屏可用）
@@ -49,8 +65,7 @@ Page({
 
     // 请求API数据
     wx.request({
-      // url: 'http://127.0.0.1:8000/api/activity/wechat/list/',
-      url: `${app.globalData.AUTH_API}api/activity/wechat/list/`,
+      url: `${app.globalData.AUTH_API}activities/`,
       method: 'GET',
       data: {
         page: this.data.page,
@@ -71,7 +86,8 @@ Page({
             isLoading: false,
             hasMore: res.data.data.length >= this.data.pageSize,
           });
-
+          console.log('---------------res.data.message:', res.data.message);
+          
           console.log('res.data.data.length:', res.data.data.length);
           
           // 缓存数据
@@ -92,11 +108,16 @@ Page({
   /**
    * 格式化活动数据
    */
+
+
+
   formatActivityData: function(data) {
     return data.map(item => ({
       ...item,
-      activity_time: this.formatTime(item.activity_time),
       // 添加状态标识
+      // 格式化时间字段
+      formatted_start_time: this.formatTime(item.start_time),
+      formatted_end_time: this.formatTime(item.end_time),
       status: this.getActivityStatus(item.start_time, item.end_time)
     }));
   },
@@ -141,11 +162,10 @@ Page({
     this.loadInitialData();
   },
 
-
   // 基础刷新函数
   refreshData: function(resetPage = true) {
     if (this.data.isLoading) return;
-    
+    console.log('------------index_refresh---------------------');
     this.setData({
       isLoading: true,
       isRefreshing: resetPage
@@ -157,17 +177,12 @@ Page({
     };
 
     wx.request({
-      url: `${app.globalData.AUTH_API}api/activity/wechat/list/`,
+      url: `${app.globalData.AUTH_API}activities/`,
       method: 'GET',
       data: params,
       success: (res) => {
         if (res.statusCode === 200 && res.data.code === 200) {
           const newData = this.formatActivityData(res.data.data);
-          // const newData = formattedData.map(item => ({
-          //   ...item,
-          //   activity_time: this.formatTime(item.activity_time)
-          // }));
-
           this.setData({
             activities: resetPage ? newData : [...this.data.activities, ...newData],
             page: params.page,
@@ -195,12 +210,6 @@ Page({
         wx.stopPullDownRefresh();
       }
     });
-  },
-
-  // 时间格式化方法
-  formatTime: function(timestamp) {
-    const date = new Date(timestamp);
-    return `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
   },
 
    /**
@@ -237,36 +246,46 @@ Page({
   },
 
   handleJoin: function(e) {
-    const activity = e.currentTarget.dataset.item; // 确保WXML传递了item
+    // 安全获取活动数据（兼容两种传递方式）
+    const activity = e.currentTarget.dataset.item || 
+                    this.data.activities.find(item => item.id === e.currentTarget.dataset.id);
     
-    // 检查活动状态
+    if (!activity) {
+      wx.showToast({ title: '活动数据异常', icon: 'none' });
+      return;
+    }
+    // 状态检查（严格模式）
     if (activity.status !== '进行中') {
       wx.showToast({
-        title: '该活动不可参与',
-        icon: 'none',
-        duration: 2000
+        title: activity.status === '已结束' ? '活动已结束' : '活动未开始',
+        icon: 'none'
       });
       return;
     }
-
-    // 跳转到活动详情页
+    const basicInfo = {
+      id: activity.id,
+      title: activity.title,
+      cover_url: activity.cover_url,
+      status: activity.status,
+      formatted_start_time: activity.formatted_start_time, // 保持字段名一致
+      formatted_end_time: activity.formatted_end_time,
+      location_name: activity.location_name // 保持与图片中完全相同的字段名
+    };
+    // 跳转逻辑（双保险策略）
     wx.navigateTo({
-      url: `/pages/task/task?data=${encodeURIComponent(JSON.stringify(activity))}`,
-      success: () => {
-        console.log('跳转成功，活动ID:', activity.id);
+      url: `/pages/task/task?id=${activity.id}`,
+      success: (res) => {
+        res.eventChannel.emit('acceptActivityData', basicInfo); // 直接传递平铺对象
       },
       fail: (err) => {
         console.error('跳转失败:', err);
-        wx.showToast({
-          title: '跳转失败，请重试',
-          icon: 'none'
-        });
+        wx.showToast({ title: '系统繁忙，请稍后重试', icon: 'none' });
       }
     });
   },
+  
   onPullDownRefresh() {
     console.log('--------下拉刷新触发---------');
     this.refreshData();
   }
-
 });

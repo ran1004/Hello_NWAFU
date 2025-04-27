@@ -1,47 +1,137 @@
-<!-- create.wxml -->
-<view class="container">
-    <form bindsubmit="formSubmit">
-        <!-- 活动标题 -->
-        <view class="form-item">
-            <text class="form-label">活动标题</text>
-            <input name="title" placeholder="请输入标题" placeholder-class="placeholder" class="form-input" />
+<!-- pages/activity/create.wxml -->
+<view class="create-page">
+  <!-- 顶部标题 -->
+  <view class="header">
+    <text class="title">创建活动</text>
+  </view>
+
+  <!-- 表单卡片 -->
+  <view class="form-card">
+    <form bindsubmit="handleSubmit">
+
+      <view class="input-container">
+        <text class="label">活动标题*</text>
+        <input 
+          name="title" 
+          data-field="title" 
+          bindinput="handleInputChange" 
+          placeholder="请输入活动标题（50字以内）" 
+          placeholder-class="placeholder"
+          maxlength="50"
+          class="fixed-input"
+          style="height: 88rpx; line-height: 88rpx;"
+        />
+      </view>
+
+    <view class="input-container">
+      <text class="label">活动地点</text>
+      <input
+        name="location"
+        data-field="location" 
+        bindinput="handleInputChange" 
+        placeholder="请输入活动地点(选填)"
+        placeholder-class="placeholder"
+        class="fixed-input"
+        style="height: 88rpx; line-height: 88rpx;"
+      />
+    </view>
+
+      
+    <view class="input-container">
+        <text class="label">活动详情*</text>
+        <textarea 
+          name="content" 
+          placeholder="请描述活动内容..." 
+          placeholder-class="placeholder"
+          auto-height
+          class="auto-expand-textarea"  
+          bindinput="handleTextareaInput"
+          bindlinechange="handleLineChange"
+          cursor-spacing="20"
+        />
+    </view>
+
+      <!-- 时间选择组 -->
+      <!-- WXML -->
+      <view class="time-group">
+        <!-- 发布时间 -->
+        <view class="time-item">
+          <text class="label">发布时间*</text>
+          <view class="time-row">
+            <picker mode="date" bindchange="bindPublishDate">
+              <view class="time-picker">{{publishDate || '选择日期'}}</view>
+            </picker>
+            <picker mode="time" bindchange="bindPublishTime">
+              <view class="time-picker">{{publishTime || '选择时间'}}</view>
+            </picker>
+          </view>
         </view>
 
-        <!-- 活动内容 -->
-        <view class="form-item">
-            <text class="form-label">活动内容</text>
-            <textarea name="content" placeholder="请输入详情" placeholder-class="placeholder" class="form-textarea" auto-height />
+        <!-- 开始时间 -->
+        <view class="time-item">
+          <text class="label">开始时间*</text>
+          <view class="time-row">
+            <picker mode="date" bindchange="bindStartDate">
+              <view class="time-picker">{{startDate || '选择日期'}}</view>
+            </picker>
+            <picker mode="time" bindchange="bindStartTime">
+              <view class="time-picker">{{startTime || '选择时间'}}</view>
+            </picker>
+          </view>
         </view>
-        <!-- create.wxml 时间选择器部分 -->
-        <view class="form-item">
-            <text class="form-label">活动时间</text>
-            <view class="time-container">
-                <!-- 🌟 纵向排列结构 -->
-                <view class="time-item">
-                    <text class="time-label">日期</text>
-                    <picker mode="date" value="{{selectedDate}}" start="{{startDate}}" end="{{endDate}}" bindchange="bindDateChange">
-                        <view class="time-value-box">
-                            <text class="time-value">{{dateStr || '选择日期'}}</text>
-                        </view>
-                    </picker>
-                </view>
 
-                <view class="time-divider"></view> <!-- 🌟 新增分隔线 -->
+        <!-- 结束时间 -->
+        <view class="time-item">
+          <text class="label">结束时间*</text>
+          <view class="time-row">
+            <picker mode="date" bindchange="bindEndDate">
+              <view class="time-picker">{{endDate || '选择日期'}}</view>
+            </picker>
+            <picker mode="time" bindchange="bindEndTime">
+              <view class="time-picker">{{endTime || '选择时间'}}</view>
+            </picker>
+          </view>
+        </view>
+      </view>
 
-                <view class="time-item">
-                    <text class="time-label">时间</text>
-                    <picker mode="time" value="{{selectedTime}}" bindchange="bindTimeChange">
-                        <view class="time-value-box">
-                            <text class="time-value">{{timeStr || '选择时间'}}</text>
-                        </view>
-                    </picker>
-                </view>
+ 
+
+          <!-- 图片上传区域 -->
+          <view class="upload-section">
+            <text class="section-title">封面图</text>
+            <view class="upload-area" bindtap="uploadPic">
+              <image wx:if="{{tempCover}}" src="{{tempCover}}" class="temp-image" mode="aspectFill" />
+              <view wx:else class="upload-placeholder">
+                <image src="/images/avatar.webp" mode="widthFix" />
+                <text>添加封面</text>
+              </view>
             </view>
-        </view>
+          </view>
+<!-- 
+          <view class="upload-section">
+            <text class="section-title">活动图片（最多9张）</text>
+            <view class="image-grid">
+              <block wx:for="{{imageList}}" wx:key="*this">
+                <view class="image-item">
+                  <image src="{{item}}" mode="aspectFill" bindtap="previewImage" data-url="{{item}}" />
+                  <image class="delete-icon" src="/images/avatar.webp" bindtap="removeImage" data-index="{{index}}" />
+                </view>
+              </block>
+              <view class="image-item add-btn" bindtap="addImages" wx:if="{{imageList.length < 9}}">
+                <image src="/images/avatar.webp" mode="widthFix" />
+              </view>
+            </view>
+          </view> -->
 
-        <!-- 🌟 按钮样式调整 -->
-        <button form-type="submit" class="submit-btn" hover-class="btn-hover">
-            发布活动
-        </button>
+      <!-- 提交按钮 -->
+      <button 
+        form-type="submit" 
+        class="submit-btn" 
+        hover-class="submit-btn-hover"
+        loading="{{isLoading}}"
+      >
+        创建活动
+      </button>
     </form>
+  </view>
 </view>

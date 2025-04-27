@@ -21,7 +21,7 @@ Page({
         if (savedData) {
             this.setData({
                 user_name: savedData.userInfo.name,
-                avatarUrl: savedData.avatarUrl || '/images/icon8.jpg'
+                avatarUrl: savedData.currentLocalAvatarUrl || '/images/icon8.jpg'
             })
         }
         console.log('用户数据已更新')

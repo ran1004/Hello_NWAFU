@@ -78,7 +78,7 @@
 
 .auto-expand-textarea {
   width: 100%;
-  min-height: 300rpx;
+  min-height: 200rpx;
   padding: 20rpx;
   border: 1rpx solid #e5e5e5;
   border-radius: 12rpx;
@@ -95,35 +95,22 @@
   color: #ccc;
 }
 
-
-/* WXSS */
 .time-group {
   margin-bottom: 40rpx;
 }
 
+
 .time-item {
   margin-bottom: 40rpx;
 }
-
 .time-item .label {
-  font-weight: bold;
-  font-size: 30rpx;
-  color: #333;
-  margin-bottom: 16rpx;
-  display: block;
+  font-weight: bold; /* 新增 */
+  font-size: 30rpx; /* 与输入框标签一致 */
+  color: #333; /* 与输入框标签一致 */
+  margin-bottom: 16rpx; /* 与输入框标签一致 */
+  display: block; /* 确保独占一行 */
 }
 
-/* 新增：横向排列的时间选择行 */
-.time-row {
-  display: flex;
-  gap: 20rpx; /* 两个选择器间距 */
-}
-
-.time-row > picker {
-  flex: 1;
-}
-
-/* 保持图片中的灰色选择框样式 */
 .time-picker {
   padding: 20rpx;
   border: 1rpx solid #eee;
@@ -131,9 +118,7 @@
   font-size: 28rpx;
   color: #333;
   background-color: #fafafa;
-  text-align: center;
 }
-
 
 .upload-section {
   margin-bottom: 40rpx;
@@ -144,7 +129,7 @@
   font-size: 30rpx;
   color: #333;
   margin-bottom: 20rpx;
-  font-weight: bold;
+  font-weight: 500;
 }
 
 .upload-area {
@@ -216,14 +201,6 @@
   border-radius: 50%;
   padding: 8rpx;
 }
-
-.temp-image {
-  width: 100%;
-  height: 100%;
-  border: 4rpx solid #fff;
-  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
-}
-
 
 .submit-btn {
   background-color: #07C160;

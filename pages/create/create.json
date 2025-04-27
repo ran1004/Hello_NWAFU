@@ -1,4 +1,5 @@
 {
+  "enablePullDownRefresh": false,
   "usingComponents": {},
   "navigationBarTitleText": "发布新活动"
 }

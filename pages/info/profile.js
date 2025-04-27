@@ -1,8 +1,5 @@
 // pages/info/profile.js
 // 工具函数：将 wx API 转为 Promise----封装成API
-
-const app = getApp();
-
 const promisify = (fn) => (options) => {
     return new Promise((resolve, reject) => {
         fn({
@@ -13,13 +10,17 @@ const promisify = (fn) => (options) => {
     });
 };
 const request = promisify(wx.request);
+const uploadFile = promisify(wx.uploadFile); //封装uploadFile
 Page({
     data: {
         //区分编辑模式/注册模式
         isEditMode: false, // 新增编辑模式标识
         tempToken: '', // 来自后端的临时令牌
         code: '', // 微信登录凭证
-        avatarUrl: '/images/icon8.jpg', // 默认头像
+        // 修改1：新增初始本地路径记录
+        initialLocalAvatarUrl: '', // 记录初始图片的路径
+        currentLocalAvatarUrl: '', // 当前显示的本地路径
+        serverAvatarUrl: '', // 服务端存储路径
         userInfo: { // 用户填写的注册信息
             name: '',
             role: '',
@@ -34,15 +35,75 @@ Page({
         this.loadCachedData()
         // 先检查登录状态
         if (this.checkLoginStatus()) {
-            console.log("编辑模式");
-            //this.initEditMode(); // 编辑模式初始化
+            console.log("[编辑模式]");
         } else {
-            console.log("注册模式");
+            console.log("[注册模式]");
             this.initRegisterMode(options); // 注册模式初始化
         }
-
+        // 记录初始本地路径（可能来自缓存或默认）
+        this.setData({
+            initialLocalAvatarUrl: this.data.currentLocalAvatarUrl
+        });
         //调试
         console.log(this.data)
+    },
+    // 修改4：统一头像处理逻辑
+    async handleAvatar() {
+        // 判断是否需要上传
+        if (this.needUploadAvatar()) {
+            wx.showLoading({
+                title: '上传中...'
+            });
+            try {
+                const newUrl = await this.uploadNewAvatar();
+                this.setData({
+                    serverAvatarUrl: newUrl,
+                    initialLocalAvatarUrl: this.data.currentLocalAvatarUrl // 更新基准
+                });
+                return newUrl;
+            } finally {
+                wx.hideLoading();
+            }
+        }
+        return this.data.serverAvatarUrl;
+    },
+    // 修改5：精确的上传判断方法
+    needUploadAvatar() {
+        // 情况1：没有服务端记录（新注册）
+        if (!this.data.serverAvatarUrl) return true;
+        // 情况2：本地路径发生变化
+        return this.data.currentLocalAvatarUrl !== this.data.initialLocalAvatarUrl;
+    },
+    // 修改6：上传图片逻辑
+    async uploadNewAvatar() {
+        const token = this.getUploadFormData()
+        console.log("[Token]", token)
+        const res = await uploadFile({
+            url: 'http://127.0.0.1:8000/upload/avatar',
+            filePath: this.data.currentLocalAvatarUrl,
+            name: 'avatar',
+            header: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data'
+            }, // 关键修改：使用标准头部
+        });
+        console.log("[上传照片RES]",res)
+        console.log("[图片上传成功]")
+        if (res.statusCode !== 200) throw new Error('图片上传失败');
+        //返回服务器存储的图片路径
+        return JSON.parse(res.data).url;
+    },
+    // 修改getUploadFormData方法
+    getUploadFormData() {
+        if (this.data.isEditMode) {
+            const token = wx.getStorageSync('auth_token');
+            if (!token) throw new Error('请先登录');
+            return token; // 正式token不加前缀
+        } else {
+            if (!this.data.tempToken) throw new Error('临时凭证无效');
+            // 返回原始tempToken（不带额外前缀）
+            return this.data.tempToken;
+        }
     },
     // 新增登录状态检查方法
     checkLoginStatus() {
@@ -67,128 +128,103 @@ Page({
             });
             return;
         }
+        console.log("[临时TOKEN]",options.temp_token)
         this.setData({
             tempToken: options.temp_token,
             code: options.code
         });
     },
-    // 新增编辑模式初始化---暂时没用
-    async initEditMode() {
+    // 修改3：重构缓存加载逻辑
+    loadCachedData() {
+        const cachedData = wx.getStorageSync('userProfile') || {};
+        this.setData({
+            userInfo: {
+                ...this.data.userInfo,
+                ...cachedData.userInfo
+            },
+            currentLocalAvatarUrl: cachedData.currentLocalAvatarUrl || '/images/icon8.jpg',
+            serverAvatarUrl: cachedData.serverAvatarUrl || '',
+        });
+        console.log("[缓存加载完毕]")
+    },
+    // 修改9：统一提交处理
+    async handleRegistration() {
+        console.log("[保存开始:]")
         try {
-            const userInfo = await this.fetchUserProfile();
-            this.setData({
-                userInfo: userInfo,
-                avatarUrl: userInfo.avatar || this.data.avatarUrl
-            });
+            //1.处理图片
+            const finalAvatar = await this.handleAvatar();
+            if (this.data.isEditMode) {
+                //编辑模式更新资料
+                await this.updateProfile(finalAvatar);
+                console.log("[更新完成]")
+            } else {
+                //注册模式注册用户
+                await this.registerUser(finalAvatar);
+                console.log("[注册结束]")
+            }
+            // 修改10：成功后本地缓存
+            this.updateLocalCache();
         } catch (error) {
-            this.handleProfileError(error);
+            this.handleRegistrationError(error);
         }
     },
-    // 新增获取用户资料方法---禁用
-    async fetchUserProfile() {
+    // 修改11：重构注册方法
+    async registerUser(finalAvatarUrl) {
+        if (!this.validateRegistrationForm()) return;
         const res = await request({
-            url: `${app.globalData.AUTH_API}user/profile`,
-            header: {
-                'Authorization': wx.getStorageSync('auth_token')
+            url: 'http://127.0.0.1:8000/login/register',
+            method: 'POST',
+            data: {
+                temp_token: this.data.tempToken.replace(/^temp_/, ''),
+                user_info: {
+                    ...this.data.userInfo,
+                    avatarUrl: finalAvatarUrl
+                }
             }
         });
-        if (res.statusCode !== 200) {
-            throw new Error('获取信息失败');
-        }
-        return res.data;
-    },
-    // 修改后的主注册方法
-    async handleRegistration() {
-        if (this.data.isEditMode) {
-            await this.handleProfileUpdate(); // 编辑模式处理
-        } else {
-            await this.handleNewRegistration(); // 注册模式处理
-        }
-    },
-    // 新增资料更新方法
-    async handleProfileUpdate() {
-        console.log("handleProfileUpdate资料开始更新！！")
+        // 【新增】注册成功后替换为正式token
+        // 【新增】严格校验响应格式
+        if (!res.data.token) throw new Error('注册失败：未获取到有效token');
+        // 确保使用res.data.token而不是res.token
+        const authToken = res.data.token;
+        console.log("[正式返回的Token]:", authToken);
+        // 添加存储异常处理
         try {
-            const updateData = {
+            wx.setStorageSync('auth_token', authToken);
+        } catch (storageError) {
+            console.error("存储token失败:", storageError);
+            throw new Error('本地存储失败');
+        }
+        this.handleRegistrationSuccess(res);
+    },
+    // 修改12：重构更新方法
+    async updateProfile(finalAvatarUrl) {
+        const res = await request({
+            url: 'http://127.0.0.1:8000/user/update',
+            method: 'PUT',
+            header: {
+                'Authorization': `Bearer ${wx.getStorageSync('auth_token')}`
+            },
+            data: {
                 ...this.data.userInfo,
-                avatarUrl: await this.processAvatar()
-            };
-            const token = wx.getStorageSync('auth_token');
-            const res = await request({
-                url: `${app.globalData.AUTH_API}user/update`,
-                method: 'PUT',
-                header: {
-                    'Authorization': `Bearer ${token}`
-                },
-                data: updateData
-            });
-            console.log("retyrn")
-            console.log(res)
-            if (res.statusCode !== 200) {
-                throw new Error('更新失败');
+                avatarUrl: finalAvatarUrl
             }
-            // 存储用户资料
-            wx.setStorageSync('userProfile', {
-                userInfo: this.data.userInfo,
-                avatarUrl: this.data.avatarUrl
-            });
-            console.log("保存更新数据")
-            wx.showToast({
-                title: '更新成功',
-                complete: () => {
-                    wx.navigateBack();
-                }
-            });
-        } catch (error) {
-            this.handleRegistrationError(error);
-        }
+        });
+        // 修改13：更新成功后缓存服务端路径
+        this.setData({
+            serverAvatarUrl: finalAvatarUrl,
+            initialLocalAvatarUrl: finalAvatarUrl
+        });
+        this.updateLocalCache();
+        wx.showToast({
+            title: '更新成功',
+            icon: 'success',
+            complete: () => {
+                wx.navigateBack();
+            }
+        });
     },
-    //读取本地存储的临时注册数据
-    loadCachedData() {
-        console.log("开始加载缓存数据：")
-        const cachedData = wx.getStorageSync('userProfile')
 
-        console.log('加载缓存数据:', cachedData); // 调试日志
-        if (cachedData) {
-            // 映射 userInfo 字段
-            const userInfo = {
-                name: cachedData.userInfo.name || '',
-                role: cachedData.userInfo.role || '',
-                class_name: cachedData.userInfo.class_name || '',
-                student_id: cachedData.userInfo.student_id || '',
-                email: cachedData.userInfo.email || ''
-            };
-            // 更新页面数据
-            this.setData({
-                userInfo: userInfo,
-                avatarUrl: cachedData.avatarUrl || '/images/icon8.jpg'
-            });
-        }
-    },
-    // 注册流程
-    async handleNewRegistration() {
-        console.log("注册 handleNewRegistration！！")
-        // 表单验证不通过则中断流程
-        if (!this.validateRegistrationForm()) return;
-
-        try {
-            // [步骤1] 合并数据：微信资料 + 表单数据
-            const registrationData = {
-                ...this.data.userInfo, // 用户填写的表单数据
-                avatarUrl: await this.processAvatar(), // 处理后的头像路径
-                temp_token: this.data.code // 微信会话密钥（实际应来自后端）
-            };
-            console.log(registrationData)
-            // [步骤2] 提交注册请求
-            const res = await this.submitRegistration(registrationData);
-            console.log("注册成功，返回首页！！！")
-            // [步骤3] 处理注册结果
-            this.handleRegistrationSuccess(res);
-        } catch (error) {
-            // 异常处理
-            this.handleRegistrationError(error);
-        }
-    },
     // 表单验证方法
     validateRegistrationForm() {
         // 解构用户信息
@@ -217,75 +253,17 @@ Page({
 
         return true; // 验证通过
     },
-    // 头像处理方法
-    async processAvatar() {
-        try {
-            // 判断是否为临时路径
-            if (this.data.avatarUrl.startsWith('http://tmp/')) {
-                // 将临时文件保存为永久文件
-                const {
-                    savedFilePath
-                } = await wx.saveFile({
-                    tempFilePath: this.data.avatarUrl
-                });
-                // 更新页面数据
-                this.setData({
-                    avatarUrl: savedFilePath
-                });
-                return savedFilePath;
-            }
-            // 返回已存在的路径
-            return this.data.avatarUrl;
-        } catch (error) {
-            console.error('头像处理失败:', error);
-            return this.data.avatarUrl; // 降级处理
-        }
-    },
-    // 注册请求提交
-    async submitRegistration(data) {
-        wx.showLoading({
-            title: '正在保存...'
-        }); // 加载提示
-        try {
-            // 发起网络请求
-            const res = await request({
-                url: `${app.globalData.AUTH_API}login/register`, // ✅ 正确写法
-                method: 'POST',
-                timeout: 10000, // 10秒超时
-                data: {
-                    temp_token: this.data.tempToken, // 临时令牌
-                    user_info: data // 用户数据
-                }
-            });
-            // console.log("{dui}注册成功")
-            console.log(res)
-            // 响应状态码校验
-            if (res.statusCode !== 200 || !res.data.token) {
-                throw new Error('注册失败');
-            }
-            return res.data;
-        } finally {
-            wx.hideLoading(); // 关闭加载提示
-        }
-    },
-
     // 注册成功处理
     handleRegistrationSuccess(res) {
         console.log("执行注册成功处理")
-        // 存储认证令牌
-        wx.setStorageSync('auth_token', res.token);
-
         // 显示成功提示
         wx.showToast({
             title: '注册成功',
             icon: 'success',
             complete: () => {
-                // 跳转至首页
-                // wx.redirectTo({
-                //     url: '/pages/info/info'
-                // });
-                // 如果目标页面是 tab 页面
-                wx.switchTab({url: '/pages/info/info'});
+                wx.switchTab({
+                    url: '/pages/info/info'
+                });
             }
         });
     },
@@ -386,14 +364,31 @@ Page({
     // 处理选择成功
     handleImageSuccess(tempFilePath) {
         this.setData({
-            avatarUrl: tempFilePath
+            avatarUrl: tempFilePath, //V0
+            currentLocalAvatarUrl: tempFilePath
         })
+        // 修改7：实时更新本地缓存
+        this.updateLocalCache();
         wx.showToast({
             title: '选择成功',
             icon: 'success'
         })
-        //上传服务器
-        //this.uploadToServer(tempFilePath)
+    },
+    // 修改8：重构缓存更新方法
+    updateLocalCache() {
+        const cacheData = {
+            userInfo: this.data.userInfo,
+            currentLocalAvatarUrl: this.data.currentLocalAvatarUrl,
+            serverAvatarUrl: this.data.serverAvatarUrl,
+            lastUpdate: Date.now()
+        };
+
+        wx.setStorage({
+            key: 'userProfile',
+            data: cacheData,
+            success: () => console.log('[DEBUG] 缓存写入成功'),
+            fail: (err) => console.error('[ERROR] 缓存写入失败:', err)
+        });
     },
     // 统一输入处理--动态显示
     bindNameInput(e) {
@@ -421,13 +416,11 @@ Page({
             'userInfo.email': e.detail.value
         })
     },
-    // 在onUnload中保存草稿
+    // 修改onUnload（与updateLocalCache重复）：
     onUnload() {
-        if (!this.data.isEditMode) {
-            wx.setStorageSync('userProfile', {
-                userInfo: this.data.userInfo,
-                avatarUrl: this.data.avatarUrl
-            });
+        // 保留编辑模式的特殊处理（如需）
+        if (!this.data.isEditMode && this.data.serverAvatarUrl) {
+            this.updateLocalCache();
         }
     }
     // 其他生命周期函数保持原样...

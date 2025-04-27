@@ -1,7 +1,7 @@
 <view class="container" style="background-image: url({{bgImage}});">
   <!-- 顶部活动信息 -->
   <view class="top-banner">
-    <text class="activity-name">每日健康打卡</text>
+    <text class="activity-name">{{ activityInfo.title }}</text>
     <view class="countdown-box">
       <text class="countdown-text">剩余时间：</text>
       <text class="countdown-time {{ isExpired ? 'expired' : '' }}">

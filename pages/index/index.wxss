@@ -11,8 +11,7 @@
   position: relative; /* 父容器设为相对定位 */
   display: flex;
   align-items: center;
-  padding: 30rpx;
- 
+  padding: 30rpx 30rpx 30rpx 50rpx; /* 上 右 下 左（向左增加20rpx） */
   background-color: #fff;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
 }
@@ -27,6 +26,26 @@
   margin-left: -40rpx; /* 整体左移 */
   
 }
+
+/* 新增刷新图标样式 */
+.refresh-icon {
+  width: 35rpx;          /* 与搜索图标比例协调 */
+  height: 35rpx;         /* 保持正方形 */
+  margin-left: 30rpx;    /* 与输入框间隔 */
+  opacity: 0.7;          /* 弱化视觉权重 */
+  transition: opacity 0.3s;
+}
+
+input {
+  position: relative;
+  margin-left: 20rpx;  /* 向右移动 */
+  margin-top: 0rpx;   /* 向下移动 */
+}
+
+.refresh-icon:active {
+  opacity: 1;            /* 点击时高亮反馈 */
+}
+
 
 
 .placeholder-style {
@@ -145,7 +164,7 @@
 .activity-card {
   display: flex;
   margin: 20rpx;
-  padding: 20rpx;
+  padding: 15rpx;
   background-color: #fff;
   border-radius: 16rpx;
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
@@ -154,11 +173,12 @@
 .activity-image {
   width: 240rpx;
   height: 240rpx;
+  margin-top: 18rpx;
 }
 
 .activity-content {
   flex: 1;
-  padding: 20rpx;
+  padding: 10rpx;
   display: flex;
   flex-direction: column;
 }
@@ -166,10 +186,12 @@
 .activity-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 16rpx;
+  margin-bottom: 10rpx;
 }
 
 .activity-title {
+  margin-bottom: 5rpx;
+  margin-left: 15rpx;
   font-size: 32rpx;
   font-weight: bold;
   color: #333;
@@ -177,6 +199,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 250rpx;
 }
 
 
@@ -185,6 +208,7 @@
   display: inline-flex;
   align-items: center;
   padding: 0 16rpx; /* 控制整体宽度 */
+  margin-left: 0rpx;
 }
 
 
@@ -247,14 +271,38 @@
   margin-bottom: 20rpx;
 }
 
-.activity-time,
+.activity-time {
+  display: block;
+  line-height: 1.5;  /* 控制行间距 */
+  font-size: 24rpx;   /* 与图片字号一致 */
+  color: #333;       /* 文字颜色 */
+  text-align: left;  /* 左对齐 */
+}
+
+.activity-time2 {
+  padding-left: 20px; /* 左侧添加10px的空白 */
+  display: block;
+  line-height: 1.5;  /* 控制行间距 */
+  font-size: 24rpx;   /* 与图片字号一致 */
+  color: #333;       /* 文字颜色 */
+  text-align: left;  /* 左对齐 */
+}
+
+/* 保持图片中的极简风格 */
+.location-wrapper {
+  max-width: 100%;
+  overflow: hidden;
+}
 .activity-location {
   font-size: 24rpx;
-  color: #666;
-  display: flex;
-  align-items: center;
-  margin-bottom: 8rpx;
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  vertical-align: middle;
 }
+
 
 .activity-footer {
   display: flex;

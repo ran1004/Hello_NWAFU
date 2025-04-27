@@ -3,11 +3,9 @@
   <!-- 搜索栏 -->
   <view class="search-bar">
     <icon type="search" size="16" class="search-icon" />
-    <input 
-      placeholder="搜索活动名称" 
-      placeholder-class="placeholder-style"
-      confirm-type="search"
-    />
+    <input placeholder="搜索活动名称" placeholder-class="placeholder-style" confirm-type="search" />
+    <!-- 右侧刷新图标（图片替代文字） -->
+    <image src="/images/refresh.png" class="refresh-icon" mode="widthFix" bindtap="refreshData" />
   </view>
 
   <!-- 骨架屏加载状态 -->
@@ -35,48 +33,34 @@
   </view>
 
   <!-- 活动列表 -->
-  <scroll-view 
-    wx:if="{{activities.length > 0}}"
-    scroll-y 
-    class="activity-scroll"
-    bindscrolltolower="onReachBottom"
-    refresher-enabled="{{false}}"
-    bindrefresherrefresh="refreshData"
-    refresher-triggered="{{isRefreshing}}"
-  >
+  <scroll-view wx:if="{{activities.length > 0}}" scroll-y class="activity-scroll" bindscrolltolower="onReachBottom" refresher-enabled="{{false}}" bindrefresherrefresh="refreshData" refresher-triggered="{{isRefreshing}}">
     <view class="activity-list">
-      <view 
-        class="activity-card" 
-        wx:for="{{activities}}" 
-        wx:key="id"
-        data-id="{{item.id}}"
-      >
+      <view class="activity-card" wx:for="{{activities}}" wx:key="id" data-id="{{item.id}}">
         <image class="activity-image" src="{{item.cover_image || '/images/avatar.webp'}}" mode="aspectFill" />
         <view class="activity-content">
           <view class="activity-header">
             <text class="activity-title">{{item.title}}</text>
-            
+
 
             <view class="activity-status status-{{item.status === '进行中' ? 'active' : item.status === '已结束' ? 'ended' : 'pending'}}">
-            <!-- 背景层 -->
-            <view class="status-bg"></view>
-            <!-- 文字层 -->
-            <text class="status-text">{{item.status}}</text>
+              <!-- 背景层 -->
+              <view class="status-bg"></view>
+              <!-- 文字层 -->
+              <text class="status-text">{{item.status}}</text>
             </view>
 
           </view>
           <view class="activity-meta">
-            <text class="activity-time">⏱ {{item.activity_time}}</text>
-            <text class="activity-location">📍 {{item.location || '地点待定'}}</text>
+            <text class="activity-time">⏱ {{item.formatted_start_time}}</text>
+            <text class="activity-time2">-{{item.formatted_end_time}}</text>
+            <view class="location-wrapper">
+              <text class="activity-location">📍 {{item.location_name || '地点待定'}}</text>
+            </view>
           </view>
           <!-- 新增参加按钮 -->
-          <view 
-            class="join-btn {{item.status !== '进行中' ? 'disabled' : ''}}" 
-            bindtap="handleJoin"
-            data-item="{{item}}"
-          >
+          <view class="join-btn {{item.status !== '进行中' ? 'disabled' : ''}}" bindtap="handleJoin" data-item="{{item}}">
             <view class="btn-bg"></view>
-            <text class="btn-text">点击参与</text>
+            <text class="btn-text">查看详情</text>
           </view>
 
 

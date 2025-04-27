@@ -9,7 +9,7 @@
     <!-- 头像区 -->
     <view class="avatar-container" bindtap="uploadAvatar">
         <view class="avatar-wrapper">
-            <image src="{{avatarUrl}}" class="avatar" mode="aspectFill" />
+            <image src="{{currentLocalAvatarUrl}}" class="avatar" mode="aspectFill" />
         </view>
     </view>
 
