@@ -110,6 +110,15 @@ class ActivityCreateView(generics.CreateAPIView):
         # 检查用户权限
 
         print("🔥 接收数据:", request.data)  # 调试日志
+
+        # 复制一份 request.data 以避免修改原始数据（QueryDict 是不可变的）
+
+        # 处理 cover_image 路径（如果存在）
+        # if 'cover_image' in data and isinstance(data['cover_image'], str):
+        #     # 去掉 /media/ 前缀
+        #     data['cover_image'] = data['cover_image'].replace('/media/', '', 1)
+            # print("🔄 修正后 cover_image:", data['cover_image'])
+
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
             print("❌ 验证失败详情:", serializer.errors)  # 关键调试信息
@@ -121,7 +130,6 @@ class ActivityCreateView(generics.CreateAPIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
-
 
         if not request.user.is_authenticated:
             print("⚠️ 未认证用户尝试创建活动")  # 打印到控制台
@@ -137,15 +145,16 @@ class ActivityCreateView(generics.CreateAPIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        serializer = self.get_serializer(data=request.data)
+
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
+
+
         headers = self.get_success_headers(serializer.data)
 
         # 返回创建的活动详情
         activity = Activity.objects.get(id=serializer.data['id'])
         detail_serializer = ActivityDetailSerializer(activity, context={'request': request})
-
 
         return Response(
             detail_serializer.data,
@@ -193,13 +202,13 @@ class ImageUploadView(APIView):
         # 5. 保存文件
         try:
             saved_path = default_storage.save(save_path, uploaded_file)
-            file_url = default_storage.url(saved_path)
+            file_url = saved_path
 
             return Response({
                 "code": 200,
                 "message": "上传成功",
-                "url": file_url,  # 相对路径（如 /media/activity_images/xxx.jpg）
-                "absolute_url": request.build_absolute_uri(file_url)  # 完整URL
+                "url": file_url,
+                "absolute_url": request.build_absolute_uri(f'/media/{file_url}')  # 完整URL
             })
 
         except Exception as e:

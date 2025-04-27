@@ -6,6 +6,8 @@ from django.db import models
 from django.db.models.expressions import F
 from django.dispatch.dispatcher import receiver
 from django.utils.translation import gettext_lazy as _
+
+from DjangoProject import settings
 from login.models import User  # 从login应用导入自定义用户模型
 from django.utils import timezone  # 必须导入
 from django.db.models.signals import post_save
@@ -88,7 +90,7 @@ class Activity(models.Model):
 
     # ================= 多媒体 =================
     cover_image = models.ImageField(
-        upload_to='activity_covers/',
+        upload_to=models.ImageField('activity_images/'),
         verbose_name=_("封面图"),
         help_text="建议尺寸 16:9"
     )

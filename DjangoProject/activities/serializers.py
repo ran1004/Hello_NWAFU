@@ -24,10 +24,13 @@ class ActivityListSerializer(serializers.ModelSerializer):
         ]
 
     def get_cover_url(self, obj):
-        """动态生成封面图URL"""
-        if obj.cover_image:
+        """生成封面图完整URL"""
+        if obj.cover_image and obj.cover_image.url:
+            url = obj.cover_image.url
+            print(f"ActivityListSerializer--get_cover_url= {url}")
             request = self.context.get('request')
-            return request.build_absolute_uri(obj.cover_image.url) if request else obj.cover_image.url
+            final_url = request.build_absolute_uri(url) if request else url
+            return final_url
         return None
 
 
@@ -62,8 +65,10 @@ class ActivityDetailSerializer(serializers.ModelSerializer):
     def get_cover_url(self, obj):
         """生成封面图完整URL"""
         if obj.cover_image and obj.cover_image.url:
+            url = obj.cover_image.url
             request = self.context.get('request')
-            return request.build_absolute_uri(obj.cover_image.url) if request else obj.cover_image.url
+            final_url = request.build_absolute_uri(url) if request else url
+            return final_url
         return None
 
     def get_image_urls(self, obj):

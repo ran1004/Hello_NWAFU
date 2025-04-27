@@ -14,7 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-
+from django.conf.urls.static import static
 from django.urls import path, include
 from django.contrib import admin
 from django.http import JsonResponse
@@ -23,6 +23,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import views as auth_views
 from rest_framework import status
 
+from DjangoProject import settings
 from checkins.views import CheckinSubmitView, PhotoUploadView
 from login.views import auth_login, upload_avatar
 from login.views import complete_registration
@@ -34,20 +35,16 @@ from activities.views import (
     ActivityCreateView, ImageUploadView
 )
 
-
-
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('create/', views.create_activity, name='create_activity')  # ✔️ 关联到自定义视图函数
     path('activities/', ActivityListView.as_view(), name='activity-list'),
     path('activities/<int:id>/', ActivityDetailView.as_view(), name='activity-detail'),
     path('activities/create/', ActivityCreateView.as_view(), name='activity-create'),
     path('activities/upload/', ImageUploadView.as_view(), name='image-upload'),
-
     path('login/test', auth_login, name='login'),
     path('login/register', complete_registration, name='register'),
     path('user/update', update_profile, name='update_profile'),
     path('checkins/submit-check', CheckinSubmitView.as_view(), name='checkin'),
     path('upload-photo/', PhotoUploadView.as_view(), name='upload-photo'),
     path('upload/avatar', upload_avatar)
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # 关键！

@@ -20,8 +20,9 @@ pymysql.install_as_MySQLdb()
 BASE_DIR = Path(__file__).resolve().parent.parent
 # settings.py 添加活动media配置
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+MEDIA_URL = '/media/'  # URL 前缀（必须以斜杠开头和结尾）
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # 本地文件存储路径
 # 限制上传目录
 ACTIVITY_IMAGE_UPLOAD_PATH = 'activity_images/'  # 会自动创建
 TEMP_UPLOAD_DIR = 'temp_uploads/'
