@@ -16,7 +16,6 @@ class CheckinRecordSerializer(serializers.ModelSerializer):
 
     # 自定义验证方法（数据清洗中枢）
     def validate(self, data):
-        print("序列器")
         # 增强验证逻辑
         if 'activity' not in data or 'record' not in data:
             raise serializers.ValidationError("请求体结构错误")
@@ -33,6 +32,10 @@ class CheckinRecordSerializer(serializers.ModelSerializer):
         missing = [field for field in required_fields if field not in record]
         if missing:
             raise serializers.ValidationError({"record": f"缺少字段: {', '.join(missing)}"})
+        # 新增：验证 photo_url 格式
+        photo_url = record.get('photo_url')
+        if not photo_url.startswith(('http://', 'https://')):
+            raise serializers.ValidationError({"photo_url": "无效的图片URL"})
         # 解析时间字符串并转换时区
         try:
             timestamp_str = data['record']['timestamp']
@@ -54,8 +57,6 @@ class CheckinRecordSerializer(serializers.ModelSerializer):
             data['record']['timestamp'] = local_time
         except (KeyError, ValueError) as e:
             raise serializers.ValidationError({"timestamp": "时间格式错误，示例：2025-04-23T09:57:51Z"})
-
-        print("验证完毕")
         # 数据重组，将JSON对象平铺为数据库模型对象
         validated_data = {
             'activity_id': activity['id'],

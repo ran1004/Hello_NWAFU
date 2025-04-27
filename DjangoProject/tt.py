@@ -1,5 +1,7 @@
 from django.db import connection
 from django.db.migrations.recorder import MigrationRecorder
 
-# 使用 ORM 删除记录
-MigrationRecorder.Migration.objects.filter(app='admin').delete()
+from activities.models import Activity
+
+obj = Activity.objects.first()
+print(obj.published_at)  # 应显示: 2025-04-26 08:40:34+08:00

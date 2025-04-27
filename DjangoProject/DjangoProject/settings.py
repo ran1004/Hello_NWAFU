@@ -9,31 +9,39 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
-
+import os
 from pathlib import Path
 import pymysql
+
+
 pymysql.install_as_MySQLdb()
-
-
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+# settings.py 添加活动media配置
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# 限制上传目录
+ACTIVITY_IMAGE_UPLOAD_PATH = 'activity_images/'  # 会自动创建
+TEMP_UPLOAD_DIR = 'temp_uploads/'
+AVATAR_UPLOAD_DIR = 'avatars/'
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-)u+g4qe@k*gt5(gy&-21if_o-s$yo159880za*rqhv*pvgpq&i'
 
+SECRET_KEY = 'django-insecure-euyuhn%@fhkt(bp#01affsf17)d-r71s2(x8udq@0@aquhx(&6'
+# JWT认证环节配置
+WEAPP_ID = 'wxb199f5280a879e1d'
+WEAPP_SECRET = '67cc3f12fa469186c190649b32af759f'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 # ALLOWED_HOSTS = []
-
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['10.124.43.159', '127.0.0.1']
 CORS_ALLOW_ALL_ORIGINS = True
 
 # Application definition
@@ -46,6 +54,7 @@ INSTALLED_APPS = [
 
     # 自定义用户模型应用（必须在auth之后）
     'login.apps.LoginConfig',
+    'activities.apps.ActivitiesConfig',
 
     # 其他Django内置应用
     'django.contrib.admin',
@@ -58,7 +67,6 @@ INSTALLED_APPS = [
     'channels',
 
     # 您的自定义应用
-    'activity.apps.ActivityConfig',
     'checkins.apps.CheckinsConfig',
     'broadcast',
 ]
@@ -73,6 +81,9 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',  # 全局默认需要认证
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+            'rest_framework.renderers.JSONRenderer',  # 只返回JSON
     ]
 }
 
@@ -81,8 +92,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",  # 前端开发地址
     "https://your-production-domain.com"
 ]
-
-
 
 
 # Channels配置
@@ -101,14 +110,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # 必须放在最前面
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'DjangoProject.urls'
@@ -116,7 +125,7 @@ ROOT_URLCONF = 'DjangoProject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -150,6 +159,20 @@ DATABASES = {
 }
 
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -172,7 +195,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-hans'
 
 TIME_ZONE = 'Asia/Shanghai'
 

@@ -21,33 +21,33 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from django.contrib.auth import views as auth_views
-from activity import views
 from rest_framework import status
 
-from checkins.views import CheckinSubmitView
-from login.views import auth_login
+from checkins.views import CheckinSubmitView, PhotoUploadView
+from login.views import auth_login, upload_avatar
 from login.views import complete_registration
 from login.views import update_profile
 
+from activities.views import (
+    ActivityListView,
+    ActivityDetailView,
+    ActivityCreateView, ImageUploadView
+)
 
-
-@csrf_exempt
-def test_api(request):
-    print("==== 收到请求 ====")  # 在终端查看是否打印
-    print("请求方法:", request.method)
-    print("请求数据:", request.body)  # 小程序发送的原始数据
-    return JsonResponse({"message": "Hello 小程序!", "data": request.POST})
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     # path('create/', views.create_activity, name='create_activity')  # ✔️ 关联到自定义视图函数
-    path('api/activity/create/', views.create_activity, name='create_activity'),
-    path('api/activity/list/', views.list_activities, name='list_activities'),  # 新增列表接口
-    path('api/activity/wechat/list/', views.wechat_activity_list, name='wechat_activity_list'),
-    path('api/test/', test_api),
+    path('activities/', ActivityListView.as_view(), name='activity-list'),
+    path('activities/<int:id>/', ActivityDetailView.as_view(), name='activity-detail'),
+    path('activities/create/', ActivityCreateView.as_view(), name='activity-create'),
+    path('activities/upload/', ImageUploadView.as_view(), name='image-upload'),
+
     path('login/test', auth_login, name='login'),
     path('login/register', complete_registration, name='register'),
     path('user/update', update_profile, name='update_profile'),
     path('checkins/submit-check', CheckinSubmitView.as_view(), name='checkin'),
+    path('upload-photo/', PhotoUploadView.as_view(), name='upload-photo'),
+    path('upload/avatar', upload_avatar)
 ]

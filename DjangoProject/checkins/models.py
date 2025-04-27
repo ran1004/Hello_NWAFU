@@ -17,10 +17,10 @@ class CheckinRecord(models.Model):
     )
     # 活动信息存储（非外键方式）
     activity_id = models.PositiveIntegerField()  # 活动ID（正整数）
-    activity_title = models.CharField(max_length=255)  # 活动名称（最大255字符）
+    activity_title = models.CharField(max_length=255)  # 活动名称（最大255字
+    longitude = models.FloatField()  # 经度（浮点数，如：108.074）符）
     # 地理位置信息
     latitude = models.FloatField()  # 纬度（浮点数，如：34.291）
-    longitude = models.FloatField()  # 经度（浮点数，如：108.074）
     address = models.TextField()  # 详细地址文本（支持长文本）
     # 多媒体信息
     photo_url = models.URLField()  # 图片URL（自动验证URL格式）

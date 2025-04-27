@@ -37,12 +37,13 @@ class User(AbstractUser):  # 继承Django默认用户模型
     )
     # 覆盖默认字段并扩展
     # 主键字段（自增）
-    user_id = models.AutoField( primary_key=True,verbose_name="用户ID")
+    user_id = models.AutoField(primary_key=True, verbose_name="用户ID")
     student_id = models.CharField(max_length=20, unique=True, verbose_name="学号")  # 学号唯一约束
     name = models.CharField(max_length=50, verbose_name="姓名")
-    wx_openid = models.CharField(max_length=100, unique=True, null=True, blank=True,verbose_name="微信唯一标识")# 微信唯一标识
-    role = models.CharField(max_length=2, choices=ROLE_CHOICES, default=WX_USER,verbose_name="角色权限")
-    avatar = models.ImageField(upload_to='avatars/', null=True,verbose_name="头像路径")  # 头像文件存储路径
+    wx_openid = models.CharField(max_length=100, unique=True, null=True, blank=True,
+                                 verbose_name="微信唯一标识")  # 微信唯一标识
+    role = models.CharField(max_length=2, choices=ROLE_CHOICES, default=WX_USER, verbose_name="角色权限")
+    avatar = models.ImageField(upload_to='avatars/', null=True, verbose_name="头像路径")  # 头像文件存储路径
     gender = models.CharField(
         max_length=1,
         choices=GENDER_CHOICES,
@@ -71,6 +72,7 @@ class User(AbstractUser):  # 继承Django默认用户模型
 
     # 替换认证主键为学号
     USERNAME_FIELD = 'student_id'  # 使用学号作为登录凭证
+
     def __str__(self):
         return f"{self.name} ({self.student_id})"
 
@@ -80,24 +82,10 @@ class User(AbstractUser):  # 继承Django默认用户模型
         db_table = "user"  # 自定义表名
         ordering = ['-create_time']  # 默认按创建时间倒序排列
 
+
 class TempToken(models.Model):  # 临时令牌模型
     token = models.CharField(max_length=64, primary_key=True)  # SHA256生成
     wx_code = models.CharField(max_length=100)  # 微信临时code存储
     session_key = models.CharField(max_length=100)  # 关联的会话密钥
     openid = models.CharField(max_length=100)  # 关联的用户openid
     created_at = models.DateTimeField(auto_now_add=True)  # 创建时间
-
-class WechatUser(models.Model):
-    openid = models.CharField(max_length=64, unique=True)
-    session_key = models.CharField(max_length=64)
-    nickname = models.CharField(max_length=64, blank=True)
-    avatar = models.URLField(max_length=256, blank=True)
-    last_login = models.DateTimeField(auto_now=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        app_label = 'login'  # 显式声明所属应用
-        indexes = [
-            models.Index(fields=['openid']),
-            models.Index(fields=['created_at'])
-        ]
