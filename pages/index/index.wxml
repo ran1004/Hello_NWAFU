@@ -36,7 +36,7 @@
   <scroll-view wx:if="{{activities.length > 0}}" scroll-y class="activity-scroll" bindscrolltolower="onReachBottom" refresher-enabled="{{false}}" bindrefresherrefresh="refreshData" refresher-triggered="{{isRefreshing}}">
     <view class="activity-list">
       <view class="activity-card" wx:for="{{activities}}" wx:key="id" data-id="{{item.id}}">
-        <image class="activity-image" src="{{item.cover_image || '/images/avatar.webp'}}" mode="aspectFill" />
+        <image class="activity-image" src="{{item.cover_url || '/images/avatar.webp'}}" mode="aspectFill" />
         <view class="activity-content">
           <view class="activity-header">
             <text class="activity-title">{{item.title}}</text>

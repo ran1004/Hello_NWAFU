@@ -170,7 +170,8 @@ Page({
         success: (res) => {
           const data = JSON.parse(res.data);
           if (data.code === 200) {
-            resolve(data.url);
+            resolve(data.temp_url);
+            console.log('----临时存放图片-----', data.temp_url);
           } else {
             reject(new Error(data.message || '上传失败'));
           }
