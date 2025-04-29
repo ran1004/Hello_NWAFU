@@ -139,6 +139,26 @@
   margin-bottom: 40rpx;
 }
 
+
+.delete-btn {
+  position: absolute;
+  top: -12rpx;      /* 增大向上偏移 */
+  right: -12rpx;    /* 增大向右偏移 */
+  width: 40rpx;     /* 增大尺寸（原40rpx） */
+  height: 40rpx;
+  background: black;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30rpx;  /* 增大"×"符号 */
+  z-index: 9999;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.2); /* 阴影更明显 */
+  border: 2rpx solid white; /* 添加白色边框，避免和背景色融合 */
+}
+
+
 .section-title {
   display: block;
   font-size: 30rpx;
@@ -148,6 +168,7 @@
 }
 
 .upload-area {
+  position: relative; /* 新增 */
   width: 200rpx;
   height: 200rpx;
   border: 2rpx dashed #ddd;

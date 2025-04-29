@@ -1,5 +1,7 @@
 {
   "enablePullDownRefresh": false,
-  "usingComponents": {},
-  "navigationBarTitleText": "发布新活动"
+  "navigationBarTitleText": "发布新活动",
+  "usingComponents": {
+    "van-uploader": "@vant/weapp/uploader/index"
+  }
 }

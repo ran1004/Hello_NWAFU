@@ -1,4 +1,6 @@
 <!-- pages/activity/create.wxml -->
+
+
 <view class="create-page">
   <!-- 顶部标题 -->
   <view class="header">
@@ -11,45 +13,19 @@
 
       <view class="input-container">
         <text class="label">活动标题*</text>
-        <input 
-          name="title" 
-          data-field="title" 
-          bindinput="handleInputChange" 
-          placeholder="请输入活动标题（50字以内）" 
-          placeholder-class="placeholder"
-          maxlength="50"
-          class="fixed-input"
-          style="height: 88rpx; line-height: 88rpx;"
-        />
+        <input name="title" data-field="title" bindinput="handleInputChange" placeholder="请输入活动标题（50字以内）" placeholder-class="placeholder" maxlength="50" class="fixed-input" style="height: 88rpx; line-height: 88rpx;" />
       </view>
 
-    <view class="input-container">
-      <text class="label">活动地点</text>
-      <input
-        name="location"
-        data-field="location" 
-        bindinput="handleInputChange" 
-        placeholder="请输入活动地点(选填)"
-        placeholder-class="placeholder"
-        class="fixed-input"
-        style="height: 88rpx; line-height: 88rpx;"
-      />
-    </view>
+      <view class="input-container">
+        <text class="label">活动地点</text>
+        <input name="location" data-field="location" bindinput="handleInputChange" placeholder="请输入活动地点(选填)" placeholder-class="placeholder" class="fixed-input" style="height: 88rpx; line-height: 88rpx;" />
+      </view>
 
-      
-    <view class="input-container">
+
+      <view class="input-container">
         <text class="label">活动详情*</text>
-        <textarea 
-          name="content" 
-          placeholder="请描述活动内容..." 
-          placeholder-class="placeholder"
-          auto-height
-          class="auto-expand-textarea"  
-          bindinput="handleTextareaInput"
-          bindlinechange="handleLineChange"
-          cursor-spacing="20"
-        />
-    </view>
+        <textarea name="content" placeholder="请描述活动内容..." placeholder-class="placeholder" auto-height class="auto-expand-textarea" bindinput="handleTextareaInput" bindlinechange="handleLineChange" cursor-spacing="20" />
+      </view>
 
       <!-- 时间选择组 -->
       <!-- WXML -->
@@ -94,20 +70,19 @@
         </view>
       </view>
 
- 
 
-          <!-- 图片上传区域 -->
-          <view class="upload-section">
-            <text class="section-title">封面图</text>
-            <view class="upload-area" bindtap="uploadPic">
-              <image wx:if="{{tempCover}}" src="{{tempCover}}" class="temp-image" mode="aspectFill" />
-              <view wx:else class="upload-placeholder">
-                <image src="/images/avatar.webp" mode="widthFix" />
-                <text>添加封面</text>
-              </view>
-            </view>
-          </view>
-<!-- 
+
+      <!-- 图片上传区域 -->
+      <view class="upload-section">
+        <text class="section-title">封面图</text>
+        <view class="upload-area" bindtap="uploadPic">
+          <image wx:if="{{tempCover}}" src="{{tempCover}}" mode="aspectFill" style="width: 100%; height: 100%;" />
+          <image wx:else src="/images/loadpic.png" mode="aspectFill" style="width: 100%; height: 100%;" />
+          <view wx:if="{{tempCover}}" class="delete-btn" catchtap="removePic" >×</view>
+        </view>
+      </view>
+
+      <!-- 
           <view class="upload-section">
             <text class="section-title">活动图片（最多9张）</text>
             <view class="image-grid">
@@ -124,14 +99,10 @@
           </view> -->
 
       <!-- 提交按钮 -->
-      <button 
-        form-type="submit" 
-        class="submit-btn" 
-        hover-class="submit-btn-hover"
-        loading="{{isLoading}}"
-      >
+      <button form-type="submit" class="submit-btn" hover-class="submit-btn-hover" loading="{{isLoading}}">
         创建活动
       </button>
+
     </form>
   </view>
 </view>

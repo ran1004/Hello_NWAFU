@@ -140,12 +140,13 @@ Page({
   },
 
     // 删除暂存图片
-    removeImage(e) {
-      const { index } = e.currentTarget.dataset;
-      const { imageList } = this.data;
-      imageList.splice(index, 1);
-      this.setData({ imageList });
-    },
+  removePic: function(e) {
+    console.log("removePic 被调用"); // 确认按钮点击事件
+    this.setData({
+      tempCover: ''
+    });
+  },
+
   
     // 预览图片
     previewImage(e) {

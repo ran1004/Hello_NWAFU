@@ -1,0 +1,23 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "小程序小组",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ran1004/Hello_NWAFU.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ran1004/Hello_NWAFU/issues"
+  },
+  "homepage": "https://github.com/ran1004/Hello_NWAFU#readme",
+  "dependencies": {
+    "@vant/weapp": "^1.11.7"
+  }
+}
