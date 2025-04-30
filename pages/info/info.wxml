@@ -10,9 +10,15 @@
   <button class="corner-button" bind:tap="goToProfile" hover-class="button-hover">
     <text>编辑个人资料</text>
   </button>
+
+  <!-- data_activity_id 从当前活动界面获取 -->
+  <button data-actid="1" bindtap="get_single_csv">导出当前活动打卡情况</button>
+  <button data-actid="1" bindtap="get_acclass1_csv">导出所有跳操打卡情况</button>
+  
   <navigator url="/pages/clock_calendar/clock_calendar"> <button bindtap="showPopup" style="position: relative; left: 0rpx; top: 222rpx">查看打卡情况</button>
   </navigator>
 
 
 
 </view>
+
