@@ -18,8 +18,8 @@ module.exports = {
   formatTime: formatTime
 };
 
-var index = require('../data/data_index.js')
-var index_next = require('../data/data_index_next.js')
+// var index = require('../data/data_index.js')
+// var index_next = require('../data/data_index_next.js')
 
 function getData(url){
   return new Promise(function(resolve, reject){
