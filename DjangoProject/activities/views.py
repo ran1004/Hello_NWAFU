@@ -3,7 +3,8 @@ import os
 import pprint
 import uuid
 from datetime import datetime
-
+from django.utils import timezone
+from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -39,9 +40,12 @@ class ActivityListView(generics.ListAPIView):
     """
     serializer_class = ActivityListSerializer
     permission_classes = [permissions.AllowAny]
-
-    # 只需返回所有活跃活动，无需过滤
-    queryset = Activity.objects.order_by('-published_at')
+    def get_queryset(self):
+        """重写get_queryset方法，过滤未发布的活动"""
+        now = timezone.now()
+        return Activity.objects.filter(
+            published_at__lte=now  # 只返回published_at <= 当前时间的活动
+        ).order_by('-published_at')
 
     def list(self, request, *args, **kwargs):
         """重写list方法，返回统一格式"""
@@ -95,74 +99,115 @@ class ActivityDetailView(generics.RetrieveAPIView):
 
 class ActivityCreateView(generics.CreateAPIView):
     """
-    创建活动视图 - 仅管理员(AD)可用
+    创建活动视图 - 仅管理员(AD)可用（增加图片移动功能）
     """
     queryset = Activity.objects.all()
     serializer_class = ActivityCreateSerializer
-    permission_classes = [IsAdminUser]  # 使用自定义权限
+    permission_classes = [IsAdminUser]
+
+    def move_temp_image(self, temp_url, activity_id):
+        """将临时图片移动到活动专属目录"""
+        if not temp_url or not default_storage.exists(temp_url):
+            return None
+
+        try:
+            # 获取文件名并构建新路径
+            filename = os.path.basename(temp_url)
+            new_dir = f"activity_images/act_{activity_id}"
+            new_path = os.path.join(new_dir, filename)
+
+            # 确保目录存在
+            if not default_storage.exists(new_dir):
+                default_storage.save(new_dir + '/.keep', ContentFile(''))
+
+            # 移动文件
+            with default_storage.open(temp_url, 'rb') as old_file:
+                default_storage.save(new_path, old_file)
+            default_storage.delete(temp_url)
+
+            return new_path
+        except Exception as e:
+            print(f"⚠️ 图片移动失败: {str(e)}")
+            return None
 
     def perform_create(self, serializer):
         """创建时自动设置创建者"""
-        serializer.save(creator=self.request.user)
+        activity = serializer.save(creator=self.request.user)
+
+        # 移动封面图（如果存在）
+        if 'cover_image' in serializer.validated_data:
+            temp_url = serializer.validated_data['cover_image']
+            new_path = self.move_temp_image(temp_url, activity.id)
+            if new_path:
+                activity.cover_image = new_path
+                activity.save(update_fields=['cover_image'])
+
+        # 移动活动图片（如果存在）
+        if 'image_gallery' in serializer.validated_data:
+            new_gallery = []
+            for temp_url in serializer.validated_data['image_gallery']:
+                new_path = self.move_temp_image(temp_url, activity.id)
+                if new_path:
+                    new_gallery.append(new_path)
+            if new_gallery:
+                activity.image_gallery = new_gallery
+                activity.save(update_fields=['image_gallery'])
 
     def create(self, request, *args, **kwargs):
-        """重写create方法以返回更详细的响应"""
-        # 检查用户权限
+        """重写create方法以处理图片移动"""
+        print("🔥 接收数据:", request.data)
 
-        print("🔥 接收数据:", request.data)  # 调试日志
-
-        # 复制一份 request.data 以避免修改原始数据（QueryDict 是不可变的）
-
-        # 处理 cover_image 路径（如果存在）
-        # if 'cover_image' in data and isinstance(data['cover_image'], str):
-        #     # 去掉 /media/ 前缀
-        #     data['cover_image'] = data['cover_image'].replace('/media/', '', 1)
-            # print("🔄 修正后 cover_image:", data['cover_image'])
-
-        serializer = self.get_serializer(data=request.data)
-        if not serializer.is_valid():
-            print("❌ 验证失败详情:", serializer.errors)  # 关键调试信息
-            return Response(
-                {
-                    "code": 400,
-                    "message": "数据验证失败",
-                    "errors": serializer.errors  # 返回具体错误
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
+        # 权限检查
         if not request.user.is_authenticated:
-            print("⚠️ 未认证用户尝试创建活动")  # 打印到控制台
+            print("⚠️ 未认证用户尝试创建活动")
             return Response(
                 {"detail": "Authentication credentials were not provided."},
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
         if request.user.role != 'AD':
-            print(f"❌ 非管理员用户尝试创建活动，用户ID: {request.user.id}, 角色: {request.user.role}")  # 打印详细信息
+            print(f"❌ 非管理员用户尝试创建活动，用户ID: {request.user.id}, 角色: {request.user.role}")
             return Response(
                 {"detail": "Only admin users can create activities."},
                 status=status.HTTP_403_FORBIDDEN
             )
 
+        # 数据验证
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            print("❌ 验证失败详情:", serializer.errors)
+            return Response(
+                {
+                    "code": 400,
+                    "message": "数据验证失败",
+                    "errors": serializer.errors
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        try:
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
 
+            # 返回创建的活动详情
+            activity = Activity.objects.get(id=serializer.data['id'])
+            detail_serializer = ActivityDetailSerializer(activity, context={'request': request})
 
-        headers = self.get_success_headers(serializer.data)
-
-        # 返回创建的活动详情
-        activity = Activity.objects.get(id=serializer.data['id'])
-        detail_serializer = ActivityDetailSerializer(activity, context={'request': request})
-
-        return Response(
-            detail_serializer.data,
-            status=status.HTTP_201_CREATED,
-            headers=headers
-        )
-
-
+            return Response(
+                detail_serializer.data,
+                status=status.HTTP_201_CREATED,
+                headers=self.get_success_headers(serializer.data)
+            )
+        except Exception as e:
+            print(f"❌ 活动创建异常: {str(e)}")
+            return Response(
+                {
+                    "code": 500,
+                    "message": "活动创建过程中发生错误",
+                    "detail": str(e)
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class ImageUploadView(APIView):
@@ -195,20 +240,19 @@ class ImageUploadView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # 4. 生成唯一文件名
+        # 4. 生成唯一文件名 先存放到临时文件夹
         file_name = f"{datetime.now().strftime('%Y%m%d')}_{uuid.uuid4().hex}{ext}"
-        save_path = os.path.join('activity_images', file_name)
+        save_path = os.path.join('temp_images', file_name)
 
         # 5. 保存文件
         try:
             saved_path = default_storage.save(save_path, uploaded_file)
-            file_url = saved_path
-
+            print(f"-----save path: {saved_path}")
             return Response({
                 "code": 200,
                 "message": "上传成功",
-                "url": file_url,
-                "absolute_url": request.build_absolute_uri(f'/media/{file_url}')  # 完整URL
+                "temp_url": saved_path,  # temp_images/..
+                "temp_absolute_url": request.build_absolute_uri(f'/media/{saved_path}')  # 完整URL
             })
 
         except Exception as e:

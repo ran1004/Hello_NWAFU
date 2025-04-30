@@ -27,7 +27,6 @@ class ActivityListSerializer(serializers.ModelSerializer):
         """生成封面图完整URL"""
         if obj.cover_image and obj.cover_image.url:
             url = obj.cover_image.url
-            print(f"ActivityListSerializer--get_cover_url= {url}")
             request = self.context.get('request')
             final_url = request.build_absolute_uri(url) if request else url
             return final_url
