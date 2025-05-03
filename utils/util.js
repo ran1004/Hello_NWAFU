@@ -18,41 +18,7 @@ module.exports = {
   formatTime: formatTime
 };
 
-var index = require('../data/data_index.js')
-var index_next = require('../data/data_index_next.js')
 
-function getData(url){
-  return new Promise(function(resolve, reject){
-    wx.request({
-      url: url,
-      data: {},
-      header: {
-        //'Content-Type': 'application/json'
-      },
-      success: function(res) {
-        console.log("success")
-        resolve(res)
-      },
-      fail: function (res) {
-        reject(res)
-        console.log("failed")
-      }
-    })
-  })
-}
-
-function getData2(){
-  return index.index;
-}
-
-function getNext(){
-  return index_next.next;
-}
-
-
-module.exports.getData = getData;
-module.exports.getData2 = getData2;
-module.exports.getNext = getNext;
 
 
 
