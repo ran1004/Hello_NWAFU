@@ -22,30 +22,38 @@ Page({
 
   // 加载打卡记录
   loadPunchRecords(year, month) {
-    const userId = getApp().globalData.userId; // 假设用户ID存储在全局数据中
-    this.setData({ isLoading: true, error: null });
+    // const userId = 1;   //需要替换为openid
+    //获取用户token
+    const token = wx.getStorageSync('auth_token');
+    this.setData({
+        auth_token: token
+    })
 
     wx.request({
-      url: '${app.globalData.AUTH_API}api/checkins/',// 替换为的后端接口地址
+      url: `${app.globalData.AUTH_API}checkins/list-check`,
       method: 'GET',
-      data: {
-        // year: year,
-        // month: month
-        userId: userId
-      },
+      header: {
+        'Authorization': `Bearer ${this.data.auth_token}`,
+        'Content-Type': 'application/json'
+    },
+      // data: {
+      //   // year: year,
+      //   // month: month
+      //   userId: userId
+      // },
       success: (res) => {
         if (res.data.status === 'success') {
-          // console.log('后端返回的打卡记录:', res.data.data);
+          // console.log('后端返回的打卡记录:', res.data);
           // 1. 提取日期并格式化
           const formattedDates = res.data.checkins.map(item => {
-          const date = new Date(item.checkin_time);
+          const date = new Date(item.timestamp);
           const year = date.getFullYear();
           const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份补零
           const day = String(date.getDate()).padStart(2, '0');        // 日期补零
           return `${year}-${month}-${day}`; // 格式化为 "YYYY-MM-DD"
   });
-            console.log(res.data.checkins);
-            console.log(formattedDates)
+            // console.log(res.data.checkins);
+            // console.log(formattedDates)
 
           // 确保返回的数据是数组
           if (Array.isArray(formattedDates)) {
@@ -64,7 +72,7 @@ Page({
               // 在回调中确保数据已更新
               this.generateCalendar(year, month); 
               this.calculateStats();  // 同时计算统计
-              console.log('回调后的打卡记录:', punchRecords);
+              // console.log('回调后的打卡记录:', punchRecords);
             });
           } else {
             console.error('后端返回的打卡记录不是数组:', res.data.data);
@@ -131,7 +139,7 @@ Page({
       });
     }
 
-    console.log('生成的日历天数:', days);
+    // console.log('生成的日历天数:', days);
     this.setData({ days });
 
     // 增加

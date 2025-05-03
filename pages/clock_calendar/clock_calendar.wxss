@@ -9,7 +9,9 @@ page {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100vh;
+  height: 90vh;
+  padding:280rpx 0;
+  box-sizing: border-box;
 }
 
 .calendar-header {
@@ -46,6 +48,7 @@ page {
   margin-bottom: 18rpx;
   font-weight: bold;
   text-align: center;
+  font-size: 28rpx;
 }
 
 .day-name {
@@ -64,6 +67,7 @@ page {
   grid-template-columns: repeat(7, 1fr);
   gap: 18rpx;
   width: 438rpx;
+  font-size: 28rpx;
 }
 
 .day {
