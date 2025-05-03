@@ -24,7 +24,7 @@ from django.contrib.auth import views as auth_views
 from rest_framework import status
 
 from DjangoProject import settings
-from checkins.views import CheckinSubmitView, PhotoUploadView
+from checkins.views import CheckinSubmitView, PhotoUploadView, CheckinListView, CheckinPrint, CheckinClass1Print
 from login.views import auth_login, upload_avatar
 from login.views import complete_registration
 from login.views import update_profile
@@ -46,5 +46,8 @@ urlpatterns = [
     path('user/update', update_profile, name='update_profile'),
     path('checkins/submit-check', CheckinSubmitView.as_view(), name='checkin'),
     path('upload-photo/', PhotoUploadView.as_view(), name='upload-photo'),
-    path('upload/avatar', upload_avatar)
+    path('upload/avatar', upload_avatar),
+    path('checkins/list-check', CheckinListView.as_view(), name='checkin-list'),
+    path('checkins/print_check', CheckinPrint.as_view(), name='checkin-print'),
+    path('checkins/print_class1check', CheckinClass1Print.as_view(), name='checkin-class1print'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # 关键！
