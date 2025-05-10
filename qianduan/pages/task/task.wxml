@@ -1,0 +1,7 @@
+<!--pages/task.wxml-->
+<view class="container">
+  <view class="title">这里是标题</view>
+  <view class="content">
+    这是内容区域，你可以在这里写上你需要展示的文字内容。
+  </view>
+</view>

@@ -1,0 +1,53 @@
+<!--pages/student/student.wxml-->
+<view class="container">
+  <!-- 在container内最上方添加 -->
+  <view class="ws-status" wx:if="{{!socketConnected}}">
+    <text>⚠️ 实时通知已断开</text>
+    <button size="mini" bindtap="initWebSocket">重新连接</button>
+  </view>
+  
+  <!-- 加载状态 -->
+  <view wx:if="{{isLoading}}" class="loading">
+    <text>加载中...</text>
+    <image src="/images/chat_focus.png" mode="aspectFit"></image>
+  </view>
+
+  <!-- 错误提示 -->
+  <view wx:if="{{!isLoading && errorMsg}}" class="error">
+    <text>{{errorMsg}}</text>
+    <button type="primary" bindtap="loadActivities">重试</button>
+  </view>
+
+  <!-- 活动列表 -->
+  <view wx:if="{{!isLoading && !errorMsg}}">
+    <view wx:for="{{activities}}" wx:key="id" class="activity-card">
+
+      <!-- //socketadd -->
+      <view class="activity-card" wx:for="{{activities}}" wx:key="id">
+      <view 
+        class="new-badge" 
+        wx:if="{{index === 0 && socketConnected}}"
+      >
+      NEW
+       </view>
+        <!-- 原有内容 -->
+      </view>
+
+
+      <view class="header">
+        <text class="title">{{item.title}}</text>
+        <text class="time">{{item.activity_time}}</text>
+      </view>
+      <view class="content">
+        <text class="label">发布人:</text>
+        <text class="publisher">{{item.publisher}}</text>
+        <text class="label">活动内容:</text>
+        <text class="detail">{{item.content}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{activities.length === 0}}" class="empty">
+      <text>暂无活动</text>
+    </view>
+  </view>
+</view>
