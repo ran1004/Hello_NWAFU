@@ -11,14 +11,19 @@
     <text>编辑个人资料</text>
   </button>
 
-  <!-- data_activity_id 从当前活动界面获取 -->
-  <button data-actid="1" bindtap="get_single_csv">导出当前活动打卡情况</button>
-  <button data-actid="1" bindtap="get_acclass1_csv">导出所有跳操打卡情况</button>
-  
-  <navigator url="/pages/clock_calendar/clock_calendar"> <button bindtap="showPopup" style="position: relative; left: 0rpx; top: 222rpx">查看打卡情况</button>
-  </navigator>
 
 
 
 </view>
+<view class="complex-container" style="margin-top: 30rpx;">
+  <!-- data_activity_id 从当前活动界面获取 -->
+  <button style="margin: 10rpx;" plain
+  data-actid="1" bindtap="get_single_csv" hover-class="button-hover">导出当前活动打卡情况</button>
 
+  <button style="margin: 10rpx;" plain 
+  data-actid="1" bindtap="get_acclass1_csv" hover-class="button-hover">导出所有跳操打卡情况</button>
+  
+  <navigator url="/pages/clock_calendar/clock_calendar" style="margin: 10rpx;"> 
+  <button  plain bindtap="showPopup"  hover-class="button-hover">查看个人打卡情况</button>
+  </navigator>
+</view>
