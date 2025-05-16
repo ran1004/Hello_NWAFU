@@ -19,7 +19,7 @@ from django.urls import path, include
 from django.contrib import admin
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-
+from django.http import HttpResponse  # 添加这行导入语句！
 from django.contrib.auth import views as auth_views
 from rest_framework import status
 
@@ -35,8 +35,14 @@ from activities.views import (
     ActivityCreateView, ImageUploadView
 )
 
+# 示例视图函数（临时测试用）
+def home(request):
+    return HttpResponse("欢迎访问根路径！这是一个测试页面。")
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', home, name='home'),      # 新增根路径路由
     path('activities/', ActivityListView.as_view(), name='activity-list'),
     path('activities/<int:id>/', ActivityDetailView.as_view(), name='activity-detail'),
     path('activities/create/', ActivityCreateView.as_view(), name='activity-create'),

@@ -1,0 +1,2 @@
+127.0.0.1 - - [14/May/2025:22:56:59 +0800] "GET / HTTP/1.1" 200 51 "-" "curl/7.61.1"
+127.0.0.1 - - [16/May/2025:10:34:48 +0800] "GET /activities/?page=1&page_size=10 HTTP/1.0" 500 145 "https://servicewechat.com/wxb199f5280a879e1d/devtools/page-frame.html" "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1 wechatdevtools/1.06.2412050 MicroMessenger/8.0.5 Language/zh_CN webview/"

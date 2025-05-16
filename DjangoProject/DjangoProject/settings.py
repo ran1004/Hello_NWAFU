@@ -39,10 +39,22 @@ SECRET_KEY = 'django-insecure-euyuhn%@fhkt(bp#01affsf17)d-r71s2(x8udq@0@aquhx(&6
 WEAPP_ID = 'wxb199f5280a879e1d'
 WEAPP_SECRET = '67cc3f12fa469186c190649b32af759f'
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-# ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ['10.124.43.159', '127.0.0.1']
+ALLOWED_HOSTS = ['10.124.43.159',
+                 '127.0.0.1',
+                 'localhost',
+                 '172.25.23.193',
+                 '219.245.199.59',
+                 'iecwxdk.nwafu.edu.cn'
+                
+]
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # 信任公网设备转发的HTTPS头
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # 静态文件收集目录
+
 CORS_ALLOW_ALL_ORIGINS = True
 
 # Application definition
@@ -91,6 +103,7 @@ REST_FRAMEWORK = {
 # 跨域配置（如果前端单独部署）
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",  # 前端开发地址
+    "http://172.25.23.193:8000",  # 内网测试
     "https://your-production-domain.com"
 ]
 
@@ -150,7 +163,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'djangotest',     # 数据库名
         'USER': 'root',            # 数据库用户名
-        'PASSWORD': '123456',      # 数据库密码
+        'PASSWORD': 'nwafu_yrl#610600',      # 数据库密码
         'HOST': 'localhost',       # 数据库地址
         'PORT': '3306',            # 端口
         'OPTIONS': {
@@ -158,6 +171,7 @@ DATABASES = {
         }
     }
 }
+
 
 
 LOGGING = {
@@ -208,7 +222,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
