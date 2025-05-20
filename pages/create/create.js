@@ -321,7 +321,7 @@ Page({
           wx.showToast({ title: '创建成功' });
           setTimeout(() => wx.navigateBack(), 1500);
         } else {
-          wx.showToast({ title: '创建失败: ' + (res.data.message || '未知错误'), icon: 'none' });
+          wx.showToast({ title: '创建失败: ' + (res.data.detail || '未知错误'), icon: 'none' });
         }
       },
       fail: () => {

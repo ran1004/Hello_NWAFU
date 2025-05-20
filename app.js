@@ -14,7 +14,8 @@ const request = promisify(wx.request);
 
 App({
   globalData: {
-    AUTH_API: 'http://127.0.0.1:8000/' // ✅ 真正的全局变量
+    // AUTH_API: 'http://127.0.0.1:8000/',// ✅ 真正的全局变量
+    AUTH_API: 'https://iecwxdk.nwafu.edu.cn/' // ✅ 真正的全局变量
   },
     // 确保在onLaunch触发
     onLaunch() {

@@ -19,8 +19,6 @@ const throttle = (fn, interval = 500) => {
 };
 
 
-
-
 // pages/index/index.js
 Page({
   data: {
@@ -87,9 +85,7 @@ Page({
             hasMore: res.data.data.length >= this.data.pageSize,
           });
           console.log('---------------res.data.message:', res.data.message);
-          
           console.log('res.data.data.length:', res.data.data.length);
-          
           // 缓存数据
           wx.setStorageSync('cachedActivities', formattedData);
         } else {

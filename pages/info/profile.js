@@ -6,11 +6,12 @@ const promisify = (fn) => (options) => {
             ...options,
             success: (res) => resolve(res),
             fail: (err) => reject(err),
-        });
+        }); 
     });
 };
 const request = promisify(wx.request);
 const uploadFile = promisify(wx.uploadFile); //封装uploadFile
+const app = getApp();
 Page({
     data: {
         //区分编辑模式/注册模式
@@ -74,12 +75,12 @@ Page({
         // 情况2：本地路径发生变化
         return this.data.currentLocalAvatarUrl !== this.data.initialLocalAvatarUrl;
     },
-    // 修改6：上传图片逻辑
+    // 修改6：上传图片逻辑 `${app.globalData.AUTH_API}upload/avatar`
     async uploadNewAvatar() {
         const token = this.getUploadFormData()
         console.log("[Token]", token)
         const res = await uploadFile({
-            url: 'http://127.0.0.1:8000/upload/avatar',
+            url: `${app.globalData.AUTH_API}upload/avatar`,
             filePath: this.data.currentLocalAvatarUrl,
             name: 'avatar',
             header: {
@@ -88,7 +89,7 @@ Page({
             }, // 关键修改：使用标准头部
         });
         console.log("[上传照片RES]",res)
-        console.log("[图片上传成功]")
+        //console.log("[图片上传成功]")
         if (res.statusCode !== 200) throw new Error('图片上传失败');
         //返回服务器存储的图片路径
         return JSON.parse(res.data).url;
@@ -168,11 +169,11 @@ Page({
             this.handleRegistrationError(error);
         }
     },
-    // 修改11：重构注册方法
+    // 修改11：重构注册方法 
     async registerUser(finalAvatarUrl) {
         if (!this.validateRegistrationForm()) return;
         const res = await request({
-            url: 'http://127.0.0.1:8000/login/register',
+            url: `${app.globalData.AUTH_API}login/register`,
             method: 'POST',
             data: {
                 temp_token: this.data.tempToken.replace(/^temp_/, ''),
@@ -197,10 +198,10 @@ Page({
         }
         this.handleRegistrationSuccess(res);
     },
-    // 修改12：重构更新方法
+    // 修改12：重构更新方法 `${app.globalData.AUTH_API}user/update`
     async updateProfile(finalAvatarUrl) {
         const res = await request({
-            url: 'http://127.0.0.1:8000/user/update',
+            url: `${app.globalData.AUTH_API}user/update`,
             method: 'PUT',
             header: {
                 'Authorization': `Bearer ${wx.getStorageSync('auth_token')}`

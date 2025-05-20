@@ -293,7 +293,7 @@ Page({
             console.log("活动ID")
             console.log(activityId)
             const uploadRes = await promisify(wx.uploadFile)({
-                url: 'http://127.0.0.1:8000/upload-photo/',
+                url: `${app.globalData.AUTH_API}upload-photo/`,
                 filePath: this.data.photoPath,
                 name: 'photo',
                 formData: {
@@ -378,9 +378,9 @@ Page({
             };
             // -----------end----------
 
-            // 提交打卡记录 -----------start----------
+            // 提交打卡记录 -----------start---------- `${app.globalData.AUTH_API}submit-check`
             const submitRes = await request({
-                url: 'http://127.0.0.1:8000/checkins/submit-check',
+                url: `${app.globalData.AUTH_API}submit-check`,
                 method: 'POST',
                 header: {
                     'Authorization': `Bearer ${this.data.auth_token}`,

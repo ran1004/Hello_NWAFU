@@ -13,9 +13,8 @@
   ],
 
   "window": {
-    
     "navigationBarBackgroundColor": "#07c160",
-    "navigationBarTitleText": "hello_nwafu",
+    "navigationBarTitleText": "打卡小程序",
     "navigationBarTextStyle": "white",
     "enablePullDownRefresh": true,
     "backgroundColor": "#f5f5f5",  
