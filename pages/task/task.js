@@ -36,7 +36,7 @@ Page({
   fetchActivityDetail(id) {
     wx.showLoading({ title: '加载中...', mask: true }); // 添加加载提示
     wx.request({
-      url: `${app.globalData.AUTH_API}/activities/${id}`,
+      url: `${app.globalData.AUTH_API}activities/${id}`,
       method: 'GET',
       header: {
         'Content-Type': 'application/json',
